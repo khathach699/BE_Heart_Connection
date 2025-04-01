@@ -1,14 +1,15 @@
 import mongoose from "mongoose";
-
+import { IOrganizationDocument } from "../types/Organization";
+import mongoosePaginate from "mongoose-paginate-v2";
 const { Schema } = mongoose;
 
-const organizationSchema = new Schema(
+const organizationSchema = new Schema<IOrganizationDocument>(
   {
     info: {
       type: String,
     },
     certificate: {
-      type: String,
+      type: String, required: true
     },
     bankName: {
       type: String,
@@ -34,6 +35,14 @@ const organizationSchema = new Schema(
     timestamps: true,
   }
 );
-
-const Organization = mongoose.model("Organization", organizationSchema);
+organizationSchema.set("toJSON", {
+  transform: (doc, ret) => {
+    if (ret.user && ret.user.organization) {
+      delete ret.user.organization; // Loại bỏ organization trong user
+    }
+    return ret;
+  },
+});
+organizationSchema.plugin(mongoosePaginate);
+const Organization = mongoose.model<IOrganizationDocument, mongoose.PaginateModel<IOrganizationDocument>>("Organization", organizationSchema);
 export default Organization;

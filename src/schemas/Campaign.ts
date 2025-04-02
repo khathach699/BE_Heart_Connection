@@ -1,8 +1,9 @@
 import mongoose from "mongoose";
+import { ICampaignDocument } from "../types/Campagin";
+import mongoosePaginate from "mongoose-paginate-v2";
+const { Schema } = mongoose;
 
-const Schema = mongoose.Schema;
-
-const campaignSchema = new Schema(
+const campaignSchema = new Schema<ICampaignDocument>(
   {
     name: {
       type: String,
@@ -56,15 +57,12 @@ const campaignSchema = new Schema(
     img: {
       type: String,
     },
-    statusId: {
-      type: Number,
-      required: true,
-    },
   },
   {
     timestamps: true,
   }
 );
 
-const Campaign = mongoose.model("Campaign", campaignSchema);
+campaignSchema.plugin(mongoosePaginate);
+const Campaign = mongoose.model<ICampaignDocument, mongoose.PaginateModel<ICampaignDocument>>("Campaign", campaignSchema);
 export default Campaign;

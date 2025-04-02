@@ -1,8 +1,9 @@
 import mongoose from "mongoose";
+import { IState, IStateDocument } from "../types/State";
+import mongoosePaginate from "mongoose-paginate-v2";
+const { Schema } = mongoose;
 
-const Schema = mongoose.Schema;
-
-const stateSchema = new Schema(
+const stateSchema = new Schema<IStateDocument>(
   {
     name: {
       type: String,
@@ -19,5 +20,6 @@ const stateSchema = new Schema(
   }
 );
 
-const State = mongoose.model("State", stateSchema);
+stateSchema.plugin(mongoosePaginate);
+const State = mongoose.model<IStateDocument, mongoose.PaginateModel<IStateDocument>>("State", stateSchema);
 export default State;

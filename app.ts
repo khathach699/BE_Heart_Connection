@@ -5,6 +5,9 @@ import userRouter from "./src/routes/users";
 import cors from "cors";
 import RoleRouter from "./src/routes/roleRoute";
 import organizationRouter from "./src/routes/organization";  
+import stateRouter from "./src/routes/state";
+import campaignRouter from "./src/routes/campaigns";
+import postRouter from "./src/routes/posts";
 dotenv.config();
 
 const PORT = process.env.PORT || 3000;
@@ -18,6 +21,9 @@ app.use("/auth", userRouter);
 app.use("/users", userRouter);
 app.use("/roles", RoleRouter);
 app.use("/organizations", organizationRouter);
+app.use("/states", stateRouter);
+app.use("/campaigns", campaignRouter);
+app.use("/posts", postRouter);
 const connectDB = async () => {
   try {
     await mongoose.connect(dbURL);

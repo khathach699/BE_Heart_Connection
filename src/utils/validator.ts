@@ -62,4 +62,18 @@ export const LoginValidator = [
   body("password").isLength({ min: 8 }).withMessage(VALIDATOR_ERROR_PASSWORD),
 ];
 
-export default { validate, SignupValidator, LoginValidator };
+export const ChangePasswordValidator = [
+  body("oldPassword")
+    .isLength({ min: 8 })
+    .withMessage(VALIDATOR_ERROR_PASSWORD),
+  body("newPassword")
+    .isLength({ min: 8 })
+    .withMessage(VALIDATOR_ERROR_PASSWORD),
+];
+
+export default {
+  validate,
+  SignupValidator,
+  LoginValidator,
+  ChangePasswordValidator,
+};

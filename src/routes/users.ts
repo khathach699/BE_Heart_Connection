@@ -1,9 +1,15 @@
 import { Router } from "express";
-import { register, login } from "../controllers/userController";
-import { validate, SignupValidator, LoginValidator } from "../utils/validator";
+import { changePassword } from "../controllers/userController";
+import { validate, ChangePasswordValidator } from "../utils/validator";
+import { check_authentication } from "../utils/check_auth";
 
 const router = Router();
-router.post("/register", SignupValidator, validate, register as unknown as any);
-router.post("/login", LoginValidator, validate, login as unknown as any);
+router.post(
+  "/change_password",
+  ChangePasswordValidator,
+  check_authentication,
+  validate,
+  changePassword as unknown as any
+);
 
 export default router;

@@ -2,20 +2,19 @@ import nodemailer from "nodemailer";
 
 const transporter = nodemailer.createTransport({
   host: "sandbox.smtp.mailtrap.io",
-  port: 25,
+  port: 465,
   secure: false,
   auth: {
-    user: "b0f3e5e1188661",
-    pass: "f1ba503a22dc7e",
+    user: "e2663260cd36ad",
+    pass: "69f60b1862defd",
   },
 });
 
-module.exports = {
-  sendMailForgotPassword: async function (to: any, resetURL: any) {
-    return await transporter.sendMail({
-      to: to,
-      subject: "Reset Your Password",
-      html: `
+export const sendMailForgotPassword = async function (to: any, resetURL: any) {
+  return await transporter.sendMail({
+    to: to,
+    subject: "Reset Your Password",
+    html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
           <h2>Password Reset Request</h2>
           <p>You have requested to reset your password. Please click the link below to proceed:</p>
@@ -29,6 +28,5 @@ module.exports = {
           <p>Thank you,<br>Your App Team</p>
         </div>
       `,
-    });
-  },
+  });
 };

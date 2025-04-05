@@ -5,7 +5,7 @@ export const CreateSuccessResponse = function (
   status: number,
   data: Record<string, any>
 ) {
-  return res.status(status).send({ success: true, data });
+  return res.status(status).send({ success: true, data: data });
 };
 
 export const CreateErrorResponse = function (
@@ -24,6 +24,7 @@ export const CreateCookieResponse = function (
 ) {
   res.cookie(key, value, {
     httpOnly: true,
+
     expires: new Date(exp),
     signed: true,
   });

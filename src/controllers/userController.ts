@@ -1,49 +1,32 @@
-import { Request, Response } from "express";
-import { registerUser, loginUser } from "../services/userService";
-import {
-  CreateSuccessResponse,
-  CreateErrorResponse,
-} from "../utils/responnseHandler";
+import { NextFunction, Request, Response } from "express";
+import { Change_Password } from "../services/authService";
+import { CreateErrorResponse } from "../utils/responnseHandler";
+import { CreateSuccessResponse } from "../utils/responnseHandler";
 
-interface RegisterRequestBody {
-  email: string;
-  password: string;
-  fullname: string;
-}
-
-interface LoginRequestBody {
-  email: string;
-  password: string;
-}
-
-export const register = async (req: Request, res: Response) => {
-  try {
-    const { email, password, fullname } = req.body as RegisterRequestBody;
-    const userData = await registerUser(email, password, fullname);
-    return CreateSuccessResponse(res, 201, {
-      message: "Registration successful",
-      data: userData,
-    });
-  } catch (error) {
-    const errorMessage =
-      error instanceof Error ? error.message : "Error during registration";
-    return CreateErrorResponse(res, 400, errorMessage);
+// Extend Express Request type to include user property
+declare module "express" {
+  interface Request {
+    user?: any;
   }
-};
+}
 
-export const login = async (req: Request, res: Response) => {
+interface ChangePasswordRequestBody {
+  oldPassword: string;
+  newPassword: string;
+}
+
+export const changePassword = async function (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  const { oldPassword, newPassword } = req.body as ChangePasswordRequestBody;
   try {
-    const { email, password } = req.body as LoginRequestBody;
-    const userData = await loginUser(email, password);
+    let result = await Change_Password(req.user, oldPassword, newPassword);
     return CreateSuccessResponse(res, 200, {
-      message: "Login successful",
-      data: userData,
+      message: "Password changed successfully",
     });
-  } catch (error) {
-    const errorMessage =
-      error instanceof Error ? error.message : "Error during login";
-    return CreateErrorResponse(res, 400, errorMessage);
+  } catch (error: any) {
+    return CreateErrorResponse(res, 400, error.message);
   }
 };
-
-export default { register, login };

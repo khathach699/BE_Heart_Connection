@@ -1,32 +1,49 @@
 import { Request, Response } from "express";
 import { registerUser, loginUser } from "../services/userService";
+import {
+  CreateSuccessResponse,
+  CreateErrorResponse,
+} from "../utils/responnseHandler";
+
+interface RegisterRequestBody {
+  email: string;
+  password: string;
+  fullname: string;
+}
+
+interface LoginRequestBody {
+  email: string;
+  password: string;
+}
 
 export const register = async (req: Request, res: Response) => {
   try {
-    const { email, password, fullname } = req.body;
+    const { email, password, fullname } = req.body as RegisterRequestBody;
     const userData = await registerUser(email, password, fullname);
-    res.status(201).json({ message: "Đăng ký thành công", data: userData });
+    return CreateSuccessResponse(res, 201, {
+      message: "Registration successful",
+      data: userData,
+    });
   } catch (error) {
-    res
-      .status(400)
-      .json({
-        message:
-          error instanceof Error ? error.message : "Lỗi server khi đăng ký",
-      });
+    const errorMessage =
+      error instanceof Error ? error.message : "Error during registration";
+    return CreateErrorResponse(res, 400, errorMessage);
   }
 };
 
 export const login = async (req: Request, res: Response) => {
   try {
-    const { email, password } = req.body;
+    const { email, password } = req.body as LoginRequestBody;
     const userData = await loginUser(email, password);
-    res.status(200).json({ message: "Đăng nhập thành công", data: userData });
+    return CreateSuccessResponse(res, 200, {
+      message: "Login successful",
+      data: userData,
+    });
   } catch (error) {
-    res
-      .status(400)
-      .json({
-        message:
-          error instanceof Error ? error.message : "Lỗi server khi đăng nhập",
-      });
+    const errorMessage =
+      error instanceof Error ? error.message : "Error during login";
+    return CreateErrorResponse(res, 400, errorMessage);
   }
 };
+
+export default { register, login };

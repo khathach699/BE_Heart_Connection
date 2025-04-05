@@ -1,5 +1,6 @@
 import User from "../schemas/User";
 import { getAccessToken } from "../utils/getAccessToken";
+import bcrypt from "bcrypt";
 
 export const registerUser = async (
   email: string,
@@ -13,17 +14,11 @@ export const registerUser = async (
 
   const newUser = new User({ email, password, fullname });
   await newUser.save();
-  //   const token = await getAccessToken({
-  //     _id: newUser._id,
-  //     email: newUser.email,
-  //     rule: 1,
-  //   });
 
   return {
     _id: newUser._id,
     email: newUser.email,
     fullname: newUser.fullname,
-    // token,
   };
 };
 
@@ -33,10 +28,9 @@ export const loginUser = async (email: string, password: string) => {
     throw new Error("Tài khoản không tồn tại");
   }
 
-  // Kiểm tra mật khẩu nếu cần (ví dụ: bcrypt)
-  // if (!(await bcrypt.compare(password, user.password))) {
-  //   throw new Error("Sai mật khẩu");
-  // }
+  if (!(await bcrypt.compare(password, user.password))) {
+    throw new Error("Sai mật khẩu");
+  }
 
   const token = await getAccessToken({
     _id: user._id,
@@ -51,3 +45,5 @@ export const loginUser = async (email: string, password: string) => {
     token,
   };
 };
+
+export const forgotPassword = async (email: string) => {};

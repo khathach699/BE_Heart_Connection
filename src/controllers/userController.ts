@@ -1,31 +1,32 @@
-import User from "../schemas/User";
-import dotenv from "dotenv";
-dotenv.config();
+import { NextFunction, Request, Response } from "express";
+import { Change_Password } from "../services/authService";
+import { CreateErrorResponse } from "../utils/responnseHandler";
+import { CreateSuccessResponse } from "../utils/responnseHandler";
 
-const register = async (req: any, res: any) => {
-  const body = req.body;
-  const { email, password, fullname } = body;
-  console.log(body);
+// Extend Express Request type to include user property
+declare module "express" {
+  interface Request {
+    user?: any;
+  }
+}
 
+interface ChangePasswordRequestBody {
+  oldPassword: string;
+  newPassword: string;
+}
+
+export const changePassword = async function (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  const { oldPassword, newPassword } = req.body as ChangePasswordRequestBody;
   try {
-    const user = await User.findOne({ email });
-    if (user) {
-      return res.status(400).json({
-        message: "Email đã tồn tại",
-      });
-    }
-    const newUser = new User(body);
-    await newUser.save();
-    res.status(200).json({
-      message: "Đăng ký thành công",
-      data: newUser,
+    let result = await Change_Password(req.user, oldPassword, newPassword);
+    return CreateSuccessResponse(res, 200, {
+      message: "Password changed successfully",
     });
   } catch (error: any) {
-    console.error(error);
-    res.status(500).json({
-      message: error.message || "Lỗi server khi đăng ký",
-    });
+    return CreateErrorResponse(res, 400, error.message);
   }
 };
-
-export { register };

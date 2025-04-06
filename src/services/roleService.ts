@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import Role from "../schemas/Role";
 import { IRole, IRoleDocument } from "../types/role";
 
@@ -15,3 +16,17 @@ export class RoleService {
     }
 }
 export default new RoleService();
+=======
+import roleSchema from "../schemas/Role";
+
+export const GetAllRoles = async () => {
+  return await roleSchema.find({});
+};
+
+export const CreateARole = async (name: string) => {
+  let newRole = new roleSchema({
+    name: name,
+  });
+  return await newRole.save();
+};
+>>>>>>> khathach

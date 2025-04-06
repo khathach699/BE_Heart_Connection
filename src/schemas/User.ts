@@ -1,20 +1,23 @@
 import mongoose from "mongoose";
-import bcrypt from "bcrypt";
-import { IUserDocument } from "../types/user";
-import mongoosePaginate from "mongoose-paginate-v2";// Thêm plugin phân trang
-// Nhớ thêm username và role vào types/user
 const Schema = mongoose.Schema;
-const userSchema = new Schema<IUserDocument>(
+import bcrypt from "bcrypt";
+
+const userSchema = new Schema(
   {
     // username: { type: String, required: true, unique: true },
     fullname: { type: String, required: true },
-    password: { type: String, required: true ,select: false}, // select: false ẩn password
+    password: { type: String, required: true },
     avatar: { type: String },
     email: { type: String, required: true, unique: true },
     point: { type: Number, default: 0 },
     isdisable: { type: Boolean, default: false },
-    role: { type: Schema.Types.ObjectId, ref: "Role", required: true },
-    organization: { type: Schema.Types.ObjectId, ref: "Organization", default: null },
+    role: {
+      type: mongoose.Types.ObjectId,
+      ref: "Role",
+      required: true,
+    },
+    otpCode: { type: String },
+    otpExpires: { type: Number },
     isdeleted: { type: Boolean, default: false },
   },
   {
@@ -22,7 +25,7 @@ const userSchema = new Schema<IUserDocument>(
   }
 );
 
-userSchema.pre("save", async function (next) {
+userSchema.pre("save", function (next) {
   if (this.isModified("password")) {
     let salt = bcrypt.genSaltSync(10);
     let encrypted = bcrypt.hashSync(this.password, salt);
@@ -30,7 +33,6 @@ userSchema.pre("save", async function (next) {
   }
   next();
 });
-userSchema.plugin(mongoosePaginate);// Thêm plugin phân trang
-//const User = mongoose.model("User", userSchema);
-const User = mongoose.model<IUserDocument, mongoose.PaginateModel<IUserDocument>>("User", userSchema);
+
+const User = mongoose.model("User", userSchema);
 export default User;

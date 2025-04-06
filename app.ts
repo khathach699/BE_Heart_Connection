@@ -5,14 +5,16 @@ import authRouter from "./src/routes/auth";
 import userRouter from "./src/routes/users";
 import roleRouter from "./src/routes/role";
 import cors from "cors";
-<<<<<<< HEAD
+
 import RoleRouter from "./src/routes/roleRoute";
-import organizationRouter from "./src/routes/organization";  
-=======
-import createError from "http-errors";
+import organizationRouter from "./src/routes/organization";
 import cookieParser from "cookie-parser";
+import createError from "http-errors";
 import { CreateErrorResponse } from "./src/utils/responnseHandler";
->>>>>>> khathach
+import stateRouter from "./src/routes/state";
+import campaignRouter from "./src/routes/campaigns";
+import postRouter from "./src/routes/posts";
+
 dotenv.config();
 
 const PORT = process.env.PORT || 3000;
@@ -21,22 +23,21 @@ const app = express();
 
 app.use(express.json());
 app.use(cors({ origin: "*" }));
-
-<<<<<<< HEAD
-app.use("/auth", userRouter);
-app.use("/users", userRouter);
-app.use("/roles", RoleRouter);
-app.use("/organizations", organizationRouter);
-=======
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser(process.env.JWT_SECRET));
 
+app.use("/auth", userRouter);
+app.use("/users", userRouter);
+app.use("/roles", RoleRouter);
+app.use("/organizations", organizationRouter);
 app.use("/auth", authRouter);
 app.use("/users", userRouter);
 app.use("/roles", roleRouter);
+app.use("/states", stateRouter);
+app.use("/campaigns", campaignRouter);
+app.use("/posts", postRouter);
 
->>>>>>> khathach
 const connectDB = async () => {
   try {
     await mongoose.connect(dbURL);
@@ -63,6 +64,5 @@ app.use(function (req, res, next) {
 app.use(function (err: any, req: any, res: any, next: any) {
   res.locals.message = err.message;
   res.locals.error = req.app.get("env") === "development" ? err : {};
-
   CreateErrorResponse(res, err.status || 500, err.message);
 });

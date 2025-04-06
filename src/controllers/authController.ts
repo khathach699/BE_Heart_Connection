@@ -40,17 +40,14 @@ export const register = async (req: Request, res: Response) => {
 export const login = async (req: Request, res: Response) => {
   try {
     const { email, password } = req.body as LoginRequestBody;
-    const userData = await CheckLogin(email, password);
+    const userId = await CheckLogin(email, password);
     let exp = new Date(Date.now() + 60 * 60 * 1000).getTime();
 
     if (!process.env.JWT_SECRET) {
       throw new Error("JWT secret is not defined");
     }
 
-    let token = jwt.sign(
-      { id: userData._id, exp: exp },
-      process.env.JWT_SECRET
-    );
+    let token = jwt.sign({ id: userId, exp: exp }, process.env.JWT_SECRET);
     CreateCookieResponse(res, "token", token, exp);
     return CreateSuccessResponse(res, 200, { token });
   } catch (error: any) {

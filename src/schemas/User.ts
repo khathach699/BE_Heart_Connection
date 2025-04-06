@@ -1,8 +1,14 @@
-import mongoose from "mongoose";
+import mongoose, { Model, Document } from "mongoose";
 const Schema = mongoose.Schema;
 import bcrypt from "bcrypt";
+import mongoosePaginate from "mongoose-paginate-v2";
+import { IUser, IUserDocument } from "../types/user";
 
-const userSchema = new Schema(
+interface UserDocument extends IUser, Document {
+  isModified(path: string): boolean;
+}
+
+const userSchema = new Schema<UserDocument>(
   {
     // username: { type: String, required: true, unique: true },
     fullname: { type: String, required: true },
@@ -12,7 +18,7 @@ const userSchema = new Schema(
     point: { type: Number, default: 0 },
     isdisable: { type: Boolean, default: false },
     role: {
-      type: mongoose.Types.ObjectId,
+      type: Schema.Types.ObjectId,
       ref: "Role",
       required: true,
     },
@@ -25,7 +31,9 @@ const userSchema = new Schema(
   }
 );
 
-userSchema.pre("save", function (next) {
+userSchema.plugin(mongoosePaginate);
+
+userSchema.pre("save", function (this: UserDocument, next) {
   if (this.isModified("password")) {
     let salt = bcrypt.genSaltSync(10);
     let encrypted = bcrypt.hashSync(this.password, salt);
@@ -34,5 +42,5 @@ userSchema.pre("save", function (next) {
   next();
 });
 
-const User = mongoose.model("User", userSchema);
+const User = mongoose.model<UserDocument>("User", userSchema);
 export default User;

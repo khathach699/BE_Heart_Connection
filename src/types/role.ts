@@ -1,11 +1,12 @@
 import { Document } from "mongoose";
 
 export interface IRole {
-    name: string;
-    isdeleted: boolean;
+  name: string;
+  description?: string;
+  isdeleted: boolean;
 }
 
 export interface IRoleDocument extends IRole, Document {
-    createdAt: Date;
-    updatedAt: Date;
+  createdAt: Date;
+  updatedAt: Date;
 }

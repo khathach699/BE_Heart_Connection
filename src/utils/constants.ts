@@ -18,6 +18,7 @@ export const AUTH_ERRORS = {
   AUTHENTICATION_REQUIRED: "Authentication required",
   ROLE_NOT_FOUND: "Role not found",
   JWT_NOT_DEFINED: "JWT secret is not defined",
+  OTP_EXPIRED: "OTP expired or not found",
 };
 
 export const PERMISSIONS = {

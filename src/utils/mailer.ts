@@ -10,23 +10,27 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-export const sendMailForgotPassword = async function (to: any, resetURL: any) {
+export const sendMailForgotPassword = async function (
+  to: string,
+  otpCode: string
+) {
   return await transporter.sendMail({
     to: to,
-    subject: "Reset Your Password",
+    subject: "Your Password Reset OTP Code",
     html: `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          <h2>Password Reset Request</h2>
-          <p>You have requested to reset your password. Please click the link below to proceed:</p>
-          <p>
-            <a href="${resetURL}" style="background-color: #4CAF50; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block;">
-              Reset Password
-            </a>
-          </p>
-          <p>This link will expire in 24 hours.</p>
-          <p>If you did not request a password reset, please ignore this email or contact support.</p>
-          <p>Thank you,<br>Your App Team</p>
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <h2>Password Reset Request</h2>
+        <p>You have requested to reset your password. Please use the OTP code below to proceed:</p>
+        
+        <div style="font-size: 24px; font-weight: bold; background-color: #f2f2f2; padding: 15px; text-align: center; margin: 20px 0; border-radius: 8px;">
+          ${otpCode}
         </div>
-      `,
+
+        <p>This OTP will expire in 10 minutes.</p>
+        <p>If you did not request a password reset, please ignore this email or contact support.</p>
+        
+        <p>Thank you,<br>Your App Team</p>
+      </div>
+    `,
   });
 };

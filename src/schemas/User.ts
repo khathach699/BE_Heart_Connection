@@ -16,7 +16,8 @@ const userSchema = new Schema(
       ref: "Role",
       required: true,
     },
-    // role: { type: Schema.Types.ObjectId, ref: "Role", required: true },
+    otpCode: { type: String },
+    otpExpires: { type: Number },
     isdeleted: { type: Boolean, default: false },
   },
   {

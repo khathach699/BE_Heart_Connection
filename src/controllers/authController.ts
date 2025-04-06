@@ -11,8 +11,6 @@ import {
   CreateCookieResponse,
 } from "../utils/responnseHandler";
 import jwt from "jsonwebtoken";
-import { sendMailForgotPassword } from "../utils/mailer";
-import { clearScreenDown } from "readline";
 
 interface RegisterRequestBody {
   email: string;
@@ -76,12 +74,16 @@ export const forgotPassword = async (req: Request, res: Response) => {
 };
 
 export const resetPassword = async (req: Request, res: Response) => {
-  const { token, newPassword } = req.body as {
-    token: string;
-    newPassword: string;
-  };
-  await ResetPassword(token, newPassword);
-  return CreateSuccessResponse(res, 200, { message: "Password reset" });
+  try {
+    const { otp, newPassword } = req.body as {
+      otp: string;
+      newPassword: string;
+    };
+    await ResetPassword(otp, newPassword);
+    return CreateSuccessResponse(res, 200, { message: "Password reset" });
+  } catch (error: any) {
+    return CreateErrorResponse(res, 400, error.message);
+  }
 };
 
 export default { register, login, forgotPassword, resetPassword };

@@ -1,10 +1,6 @@
 import { validationResult } from "express-validator";
 const { CreateErrorResponse } = require("./responnseHandler");
-const {
-  VALIDATOR_ERROR_PASSWORD,
-  VALIDATOR_ERROR_EMAIL,
-  VALIDATOR_ERROR_FULLNAME,
-} = require("./constants");
+const { VALIDATOR_ERRORS } = require("./constants");
 let util = require("util");
 import { body } from "express-validator";
 
@@ -37,12 +33,12 @@ export const validate = (req: any, res: any, next: any) => {
 };
 
 export const SignupValidator = [
-  body("email").isEmail().withMessage(VALIDATOR_ERROR_EMAIL),
+  body("email").isEmail().withMessage(VALIDATOR_ERRORS.EMAIL),
   body("password")
     .isStrongPassword(options.password)
     .withMessage(
       util.format(
-        VALIDATOR_ERROR_PASSWORD,
+        VALIDATOR_ERRORS.PASSWORD,
         options.password.minLength,
         options.password.minLowercase,
         options.password.minUppercase,
@@ -53,22 +49,22 @@ export const SignupValidator = [
   body("fullname")
     .isLength({ min: 3 })
     .withMessage(
-      util.format(VALIDATOR_ERROR_FULLNAME, options.username.minLength)
+      util.format(VALIDATOR_ERRORS.FULLNAME, options.username.minLength)
     ),
 ];
 
 export const LoginValidator = [
-  body("email").isEmail().withMessage(VALIDATOR_ERROR_EMAIL),
-  body("password").isLength({ min: 8 }).withMessage(VALIDATOR_ERROR_PASSWORD),
+  body("email").isEmail().withMessage(VALIDATOR_ERRORS.EMAIL),
+  body("password").isLength({ min: 8 }).withMessage(VALIDATOR_ERRORS.PASSWORD),
 ];
 
 export const ChangePasswordValidator = [
   body("oldPassword")
     .isLength({ min: 8 })
-    .withMessage(VALIDATOR_ERROR_PASSWORD),
+    .withMessage(VALIDATOR_ERRORS.PASSWORD),
   body("newPassword")
     .isLength({ min: 8 })
-    .withMessage(VALIDATOR_ERROR_PASSWORD),
+    .withMessage(VALIDATOR_ERRORS.PASSWORD),
 ];
 
 export default {

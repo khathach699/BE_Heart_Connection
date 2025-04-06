@@ -4,8 +4,6 @@ import roleSchema from "../schemas/Role";
 import { AUTH_ERRORS } from "../utils/constants";
 import { sendMailForgotPassword } from "../utils/mailer";
 
-import crypto from "crypto";
-
 export const GetAllUser = async function () {
   return await userSchema.find({}).populate("role");
 };
@@ -120,28 +118,33 @@ export const ForgotPassword = async function (email: string) {
   if (!user) {
     throw new Error(AUTH_ERRORS.EMAIL_NOT_FOUND);
   }
-  (user as any).resetPasswordToken = crypto.randomBytes(32).toString("hex");
-  (user as any).resetPasswordExpires = Date.now() + 3600000; // 1 hour
+  const otp = Math.floor(100000 + Math.random() * 900000).toString();
+  (user as any).otpCode = otp;
+  (user as any).otpExpires = Date.now() + 3600000; // 1 hour
   await user.save();
 
-  let url =
-    "http://localhost:3000/auth/resetpassword/" +
-    (user as any).resetPasswordToken;
-  await sendMailForgotPassword(user.email, url);
+  await sendMailForgotPassword(user.email, otp);
 };
 
-export const ResetPassword = async function (
-  token: string,
-  newPassword: string
-) {
+export const GetUserByOtp = async function (otp: string) {
+  return await userSchema.findOne({
+    otpCode: otp,
+  });
+};
+
+export const ResetPassword = async function (otp: string, newPassword: string) {
   try {
-    let user = await GetUserByToken(token);
-    if (!user) {
-      throw new Error(AUTH_ERRORS.INVALID_TOKEN);
+    console.log(otp, newPassword);
+    const user = await GetUserByOtp(otp);
+
+    if (!user || Date.now() > (user as any).otpExpires) {
+      throw new Error(AUTH_ERRORS.OTP_EXPIRED);
     }
+
     user.password = newPassword;
-    (user as any).resetPasswordToken = null;
-    (user as any).resetPasswordExpires = null;
+    (user as any).otpCode = null;
+    (user as any).otpExpires = null;
+
     await user.save();
   } catch (error: any) {
     throw new Error(error.message);

@@ -90,5 +90,17 @@ export class UserController {
       return CreateErrorResponse(res, 400, error.message);
     }
   };
+
+  async getFeaturedUsers(req: Request, res: Response) {
+    try {
+      const limit = parseInt(req.query.limit as string) || 5;
+      const featuredUsers = await userService.getFeaturedUsers(limit);
+      return CreateSuccessResponse(res, 200, {
+        featuredUsers,
+      });
+    } catch (error) {
+      return CreateErrorResponse(res, 500, (error as Error).message);
+    }
+  }
 }
 export default new UserController();

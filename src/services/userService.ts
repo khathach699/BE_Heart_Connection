@@ -79,6 +79,22 @@ export class UserService {
       throw new Error(`Error deleting user: ${(error as Error).message}`);
     }
   }
+
+  async getFeaturedUsers(limit: number = 5): Promise<IUserDocument[]> {
+    try {
+      // Get users with the highest points
+      const users = await User.find({ isdeleted: false })
+        .sort({ point: -1 }) // Sort by points in descending order
+        .limit(limit)
+        .populate("role");
+
+      return users as unknown as IUserDocument[];
+    } catch (error) {
+      throw new Error(
+        `Error fetching featured users: ${(error as Error).message}`
+      );
+    }
+  }
 }
 
 export default new UserService();

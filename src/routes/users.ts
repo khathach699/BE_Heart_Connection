@@ -36,4 +36,10 @@ router.post(
   UserController.changePassword.bind(UserController) as unknown as any
 );
 
+// Get featured users
+router.get(
+  "/featured",
+  UserController.getFeaturedUsers.bind(UserController) as unknown as any
+);
+
 export default router;

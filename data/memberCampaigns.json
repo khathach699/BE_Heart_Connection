@@ -1,0 +1,58 @@
+[
+  {
+    "UserID": "67f2882c716a04db51117a69",
+    "CampID": "507f1f77bcf86cd799439012",
+    "StatusID": 1,
+    "IsDelete": 0,
+    "CreatedAt": "2023-01-20T09:00:00.000Z"
+  },
+  {
+    "UserID": "67f2882c716a04db51117a69",
+    "CampID": "507f1f77bcf86cd799439013",
+    "StatusID": 2,
+    "IsDelete": 0,
+    "CreatedAt": "2023-02-15T10:30:00.000Z"
+  },
+  {
+    "UserID": "507f1f77bcf86cd799439014",
+    "CampID": "507f1f77bcf86cd799439012",
+    "StatusID": 1,
+    "IsDelete": 0,
+    "CreatedAt": "2023-01-25T14:20:00.000Z"
+  },
+  {
+    "UserID": "507f1f77bcf86cd799439014",
+    "CampID": "507f1f77bcf86cd799439015",
+    "StatusID": 3,
+    "IsDelete": 0,
+    "CreatedAt": "2023-03-10T11:45:00.000Z"
+  },
+  {
+    "UserID": "507f1f77bcf86cd799439016",
+    "CampID": "507f1f77bcf86cd799439013",
+    "StatusID": 1,
+    "IsDelete": 0,
+    "CreatedAt": "2023-02-28T16:15:00.000Z"
+  },
+  {
+    "UserID": "507f1f77bcf86cd799439016",
+    "CampID": "507f1f77bcf86cd799439017",
+    "StatusID": 2,
+    "IsDelete": 1,
+    "CreatedAt": "2023-04-05T13:10:00.000Z"
+  },
+  {
+    "UserID": "507f1f77bcf86cd799439018",
+    "CampID": "507f1f77bcf86cd799439015",
+    "StatusID": 1,
+    "IsDelete": 0,
+    "CreatedAt": "2023-03-15T08:45:00.000Z"
+  },
+  {
+    "UserID": "507f1f77bcf86cd799439019",
+    "CampID": "507f1f77bcf86cd799439017",
+    "StatusID": 3,
+    "IsDelete": 0,
+    "CreatedAt": "2023-04-20T15:30:00.000Z"
+  }
+]

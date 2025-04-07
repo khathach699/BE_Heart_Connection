@@ -1,0 +1,52 @@
+[
+  {
+    "Inform": "Tổ chức từ thiện A",
+    "Cetificate": "Giấy phép hoạt động số 123456",
+    "BankName": "Vietcombank",
+    "BankNumber": "1234567890",
+    "IsDelete": false,
+    "UserID": 1,
+    "IsVerified": true,
+    "CreatedAt": "2023-01-15T08:30:00.000Z"
+  },
+  {
+    "Inform": "Tổ chức từ thiện B",
+    "Cetificate": "Giấy phép hoạt động số 234567",
+    "BankName": "Techcombank",
+    "BankNumber": "0987654321",
+    "IsDelete": false,
+    "UserID": 2,
+    "IsVerified": true,
+    "CreatedAt": "2023-02-20T10:15:00.000Z"
+  },
+  {
+    "Inform": "Tổ chức từ thiện C",
+    "Cetificate": "Giấy phép hoạt động số 345678",
+    "BankName": "BIDV",
+    "BankNumber": "1122334455",
+    "IsDelete": false,
+    "UserID": 3,
+    "IsVerified": false,
+    "CreatedAt": "2023-03-10T14:45:00.000Z"
+  },
+  {
+    "Inform": "Tổ chức từ thiện D",
+    "Cetificate": "Giấy phép hoạt động số 456789",
+    "BankName": "ACB",
+    "BankNumber": "5544332211",
+    "IsDelete": false,
+    "UserID": 4,
+    "IsVerified": true,
+    "CreatedAt": "2023-04-05T09:20:00.000Z"
+  },
+  {
+    "Inform": "Tổ chức từ thiện E",
+    "Cetificate": "Giấy phép hoạt động số 567890",
+    "BankName": "MB Bank",
+    "BankNumber": "6677889900",
+    "IsDelete": true,
+    "UserID": 5,
+    "IsVerified": false,
+    "CreatedAt": "2023-05-12T11:30:00.000Z"
+  }
+]

@@ -9,7 +9,8 @@ const organizationSchema = new Schema<IOrganizationDocument>(
       type: String,
     },
     certificate: {
-      type: String, required: true
+      type: String,
+      required: true,
     },
     bankName: {
       type: String,
@@ -44,5 +45,8 @@ organizationSchema.set("toJSON", {
   },
 });
 organizationSchema.plugin(mongoosePaginate);
-const Organization = mongoose.model<IOrganizationDocument, mongoose.PaginateModel<IOrganizationDocument>>("Organization", organizationSchema);
+const Organization = mongoose.model<
+  IOrganizationDocument,
+  mongoose.PaginateModel<IOrganizationDocument>
+>("Organization", organizationSchema);
 export default Organization;

@@ -1,0 +1,42 @@
+[
+  {
+    "imgUrl": "https://example.com/images/campaign1.jpg",
+    "isdeleted": false,
+    "CampID": "507f1f77bcf86cd799439012"
+  },
+  {
+    "imgUrl": "https://example.com/images/campaign1_detail.jpg",
+    "isdeleted": false,
+    "CampID": "507f1f77bcf86cd799439012"
+  },
+  {
+    "imgUrl": "https://example.com/images/campaign2.jpg",
+    "isdeleted": false,
+    "CampID": "507f1f77bcf86cd799439013"
+  },
+  {
+    "imgUrl": "https://example.com/images/campaign3.jpg",
+    "isdeleted": false,
+    "CampID": "507f1f77bcf86cd799439015"
+  },
+  {
+    "imgUrl": "https://example.com/images/campaign3_banner.jpg",
+    "isdeleted": false,
+    "CampID": "507f1f77bcf86cd799439015"
+  },
+  {
+    "imgUrl": "https://example.com/images/campaign4.jpg",
+    "isdeleted": false,
+    "CampID": "507f1f77bcf86cd799439017"
+  },
+  {
+    "imgUrl": "https://example.com/images/campaign5.jpg",
+    "isdeleted": true,
+    "CampID": 5
+  },
+  {
+    "imgUrl": "https://example.com/images/campaign6.jpg",
+    "isdeleted": false,
+    "CampID": 6
+  }
+]

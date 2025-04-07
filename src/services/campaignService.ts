@@ -138,6 +138,20 @@ export class CampaignService {
           return {
             ...campaign.toObject(),
             images: images,
+            organizationInfo:
+              campaign.organization && typeof campaign.organization === "object"
+                ? {
+                    name:
+                      (campaign.organization as any).Inform ||
+                      "Tổ chức không xác định",
+                    logo:
+                      (campaign.organization as any).logo ||
+                      "/src/assets/logos/avt.png",
+                  }
+                : {
+                    name: "Tổ chức không xác định",
+                    logo: "/src/assets/logos/avt.png",
+                  },
           };
         })
       );
@@ -146,6 +160,106 @@ export class CampaignService {
     } catch (error) {
       throw new Error(
         `Error fetching featured campaigns: ${(error as Error).message}`
+      );
+    }
+  }
+  async getFeaturedActivities(limit: number = 3) {
+    try {
+      console.log("getFeaturedActivities called with limit:", limit);
+
+      // Lấy các chiến dịch đang diễn ra với thông tin tổ chức và ảnh
+      const campaigns = await Campaign.find({
+        isdeleted: false,
+        isAccepted: true,
+      })
+        .sort({
+          participated: -1,
+          donate: -1,
+          dayStart: -1,
+        })
+        .limit(limit)
+        .populate("organization")
+        .setOptions({ strictPopulate: false });
+
+      console.log("Số lượng campaigns tìm thấy:", campaigns.length);
+
+      if (campaigns.length === 0) {
+        console.log("Không tìm thấy chiến dịch nào thỏa mãn điều kiện");
+        return [];
+      }
+
+      // Debug organization data
+      campaigns.forEach((campaign, index) => {
+        console.log(
+          `Campaign ${index} organization:`,
+          JSON.stringify(campaign.organization)
+        );
+      });
+
+      // Thêm hình ảnh cho mỗi hoạt động
+      const activitiesWithImages = await Promise.all(
+        campaigns.map(async (campaign) => {
+          try {
+            const images = await ImgCampain.find({
+              CampID: campaign._id,
+              isdeleted: false,
+            });
+
+            console.log(
+              `Campaign ${campaign._id}: Tìm thấy ${images.length} hình ảnh`
+            );
+
+            // Convert to plain object first
+            const campaignObj = campaign.toObject();
+            console.log("Campaign object:", JSON.stringify(campaignObj));
+
+            // Extract organization info correctly
+            let organizationInfo = {
+              name: "Tổ chức không xác định",
+              logo: "/src/assets/logos/avt.png",
+            };
+
+            if (campaignObj.organization) {
+              console.log(
+                "Found organization:",
+                JSON.stringify(campaignObj.organization)
+              );
+              organizationInfo = {
+                name:
+                  (campaignObj.organization as any).Inform ||
+                  "Tổ chức không xác định",
+                logo:
+                  (campaignObj.organization as any).logo ||
+                  "/src/assets/logos/avt.png",
+              };
+              console.log("Extracted organization info:", organizationInfo);
+            }
+
+            return {
+              ...campaignObj,
+              images: images,
+              organizationInfo,
+            };
+          } catch (error) {
+            console.error(`Lỗi khi xử lý campaign ${campaign._id}:`, error);
+            return {
+              ...campaign.toObject(),
+              images: [],
+              organizationInfo: {
+                name: "Tổ chức không xác định",
+                logo: "/src/assets/logos/avt.png",
+              },
+            };
+          }
+        })
+      );
+
+      console.log("Final featured activities:", activitiesWithImages.length);
+      return activitiesWithImages;
+    } catch (error) {
+      console.error("Error in getFeaturedActivities:", error);
+      throw new Error(
+        `Error fetching featured activities: ${(error as Error).message}`
       );
     }
   }

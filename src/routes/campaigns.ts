@@ -19,6 +19,10 @@ router.get(
   "/featured",
   campaignController.getFeaturedCampaigns.bind(campaignController)
 );
+router.get(
+  "/featured-activities",
+  campaignController.getFeaturedActivities.bind(campaignController)
+);
 router.get("/:id", campaignController.getCampaignById.bind(campaignController));
 router.delete(
   "/:id",

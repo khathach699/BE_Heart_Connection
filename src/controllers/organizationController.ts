@@ -17,12 +17,10 @@ export class OrganizationController {
       };
       const organization =
         await organizationService.requestUpgradeToOrganization(userId, orgData);
-      res
-        .status(201)
-        .json({
-          message: "Organization request created, awaiting approval",
-          organization,
-        });
+      res.status(201).json({
+        message: "Organization request created, awaiting approval",
+        organization,
+      });
     } catch (error) {
       res.status(404).json({ message: (error as Error).message });
     }

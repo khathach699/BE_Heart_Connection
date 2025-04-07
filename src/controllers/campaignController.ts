@@ -105,6 +105,33 @@ export class CampaignController {
       });
     }
   }
+  async getFeaturedActivities(req: Request, res: Response) {
+    try {
+      const limit = parseInt(req.query.limit as string) || 3;
+      console.log("getFeaturedActivities controller called with limit:", limit);
+
+      const featuredActivities = await campaignService.getFeaturedActivities(
+        limit
+      );
+      console.log(
+        "getFeaturedActivities controller received result with length:",
+        featuredActivities.length
+      );
+
+      res.status(200).json({
+        success: true,
+        data: {
+          featuredActivities,
+        },
+      });
+    } catch (error) {
+      console.error("getFeaturedActivities controller error:", error);
+      res.status(500).json({
+        success: false,
+        message: (error as Error).message,
+      });
+    }
+  }
 }
 
 export default new CampaignController();

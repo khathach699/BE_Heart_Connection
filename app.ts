@@ -14,7 +14,7 @@ import { CreateErrorResponse } from "./src/utils/responnseHandler";
 import stateRouter from "./src/routes/state";
 import campaignRouter from "./src/routes/campaigns";
 import postRouter from "./src/routes/posts";
-import donate_CampaignRouter from "./src/routes/Donate_Campaign";
+import donate_CampaignRouter from "./src/routes/Donate_campaign";
 import member_campaignRouter from "./src/routes/Member_campaign";
 
 dotenv.config();

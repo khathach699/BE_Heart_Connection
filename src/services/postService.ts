@@ -118,6 +118,7 @@ export class PostService {
             if (!post) {
                 throw new Error("Post not found");
             }
+
             post.liked = (post.liked || 0) + 1;
             await post.save();
 

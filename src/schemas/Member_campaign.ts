@@ -1,9 +1,8 @@
 import mongoose from "mongoose";
-const { on } = require("./campaign");
-
-const Schema = mongoose.Schema;
-
-const memberCampaignSchema = new Schema(
+import mongoosePaginate from "mongoose-paginate-v2";
+import { IMemberCampaign, IMemberCampaignDocument } from "../types/Member_campaign";
+const { Schema } = mongoose;
+const memberCampaignSchema = new Schema<IMemberCampaign>(
   {
     user: {
       type: Schema.Types.ObjectId,
@@ -21,7 +20,6 @@ const memberCampaignSchema = new Schema(
       required: true,
       min: 0,
     },
-
     isdeleted: {
       type: Boolean,
       default: false,
@@ -31,6 +29,6 @@ const memberCampaignSchema = new Schema(
     timestamps: true,
   }
 );
-
-const MemberCampaign = mongoose.model("MemberCampaign", memberCampaignSchema);
+memberCampaignSchema.plugin(mongoosePaginate);
+const MemberCampaign = mongoose.model<IMemberCampaign, mongoose.PaginateModel<IMemberCampaignDocument>>("Member_Campaign", memberCampaignSchema);
 export default MemberCampaign;

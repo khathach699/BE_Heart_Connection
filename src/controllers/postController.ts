@@ -73,6 +73,25 @@ export class PostController {
             res.status(500).json({ message: (error as Error).message });
         }
     }
+
+    async likePost(req: Request, res: Response) {
+        try {
+            const postId = req.params.id;
+            const userId = req.user._id;
+
+            if (!postId) {
+                throw new Error("Post ID is required");
+            }
+
+            const post = await postService.likePost(postId, userId);
+            res.status(200).json({ 
+                message: "Post liked successfully", 
+                likes: post.liked 
+            });
+        } catch (error) {
+            res.status(400).json({ message: (error as Error).message });
+        }
+    }
 }
 
 export default new PostController();

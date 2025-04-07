@@ -1,6 +1,5 @@
 import Campaign from "../schemas/Campaign";
 import State from "../schemas/State";
-import { ICampaign, ICampaignDocument } from "../types/Campagin";
 import { IState, IStateDocument } from "../types/State";
 
 export class StateService {

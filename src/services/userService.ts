@@ -1,7 +1,6 @@
-import { populate } from "dotenv";
 import User from "../schemas/User";
 import { IUser, IUserDocument } from "../types/user";
-import { Model } from "mongoose";
+import Campaign from "../schemas/Campaign";
 
 export class UserService {
   async createUser(userData: IUser): Promise<IUserDocument> {
@@ -79,6 +78,19 @@ export class UserService {
       throw new Error(`Error deleting user: ${(error as Error).message}`);
     }
   }
+  async updateUserPoint(userId: string): Promise<IUserDocument> {
+          try {
+              const user = await User.findById(userId);
+              if (!user) throw new Error("User not found");            
+              const currentPoint = Number(user.point) || 0;
+              user.point = currentPoint + 1;
+              
+              await user.save();
+              return user as unknown as IUserDocument;
+          } catch (error) {
+              throw new Error(`Error updating user point: ${(error as Error).message}`);
+          }
+      }
 }
 
 export default new UserService();

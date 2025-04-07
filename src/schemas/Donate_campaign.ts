@@ -1,8 +1,8 @@
 import mongoose from "mongoose";
-
-const Schema = mongoose.Schema;
-
-const donateCampaignSchema = new Schema(
+import { IDonateCampaign, IDonateCampaignDocument } from "../types/Donate_campaign";
+import mongoosePaginate from "mongoose-paginate-v2";
+const { Schema } = mongoose;
+const donateCampaignSchema = new Schema<IDonateCampaign>(
   {
     user: {
       type: Schema.Types.ObjectId,
@@ -23,10 +23,6 @@ const donateCampaignSchema = new Schema(
       type: String,
       default: "",
     },
-    time: {
-      type: Date,
-      default: Date.now,
-    },
     isdeleted: {
       type: Boolean,
       default: false,
@@ -37,5 +33,6 @@ const donateCampaignSchema = new Schema(
   }
 );
 
-const DonateCampaign = mongoose.model("DonateCampaign", donateCampaignSchema);
+donateCampaignSchema.plugin(mongoosePaginate);
+const DonateCampaign = mongoose.model<IDonateCampaign, mongoose.PaginateModel<IDonateCampaignDocument>>("Donate_Campaign", donateCampaignSchema);
 export default DonateCampaign;

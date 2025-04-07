@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import userService from "../services/userService";
 import { IUser } from "../types/user";
+import Member_CampaignService from "../services/Member_CampaignService";
 
 export class UserController {
     async createUser(req: Request, res: Response) {
@@ -16,7 +17,7 @@ export class UserController {
     async getAllUsers(req: Request, res: Response) {
         try {
             const page = parseInt(req.query.page as string) || 1;
-            const limit = parseInt(req.query.limit as string) || 1;
+            const limit = parseInt(req.query.limit as string) || 10;
             const result = await userService.getAllUsers(page, limit);
             res.status(200).json(result);
         } catch (error) {
@@ -48,6 +49,29 @@ export class UserController {
             res.status(200).json(deleteUser);
         } catch (error) {
             res.status(404).json({ message: (error as Error).message });
+        }
+    }
+
+    async getCurrentUser(req: Request, res: Response) {
+        try {
+            const userId = req.user._id;
+            const user = await userService.getUserById(userId);
+            res.status(200).json(user);
+        } catch (error) {
+            res.status(404).json({ message: (error as Error).message });
+        }
+    }
+
+    async getUserCampaigns(req: Request, res: Response) {
+        try {
+            const userId = req.user._id;
+            const page = parseInt(req.query.page as string) || 1;
+            const limit = parseInt(req.query.limit as string) || 10;
+            
+            const campaignsResult = await Member_CampaignService.getUserCampaigns(userId, page, limit);
+            res.status(200).json(campaignsResult);
+        } catch (error) {
+            res.status(500).json({ message: (error as Error).message });
         }
     }
 }

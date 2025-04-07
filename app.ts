@@ -14,6 +14,8 @@ import { CreateErrorResponse } from "./src/utils/responnseHandler";
 import stateRouter from "./src/routes/state";
 import campaignRouter from "./src/routes/campaigns";
 import postRouter from "./src/routes/posts";
+import donate_CampaignRouter from "./src/routes/Donate_Campaign";
+import member_campaignRouter from "./src/routes/Member_campaign";
 
 dotenv.config();
 
@@ -28,7 +30,6 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser(process.env.JWT_SECRET));
 
 app.use("/auth", userRouter);
-app.use("/users", userRouter);
 app.use("/roles", RoleRouter);
 app.use("/organizations", organizationRouter);
 app.use("/auth", authRouter);
@@ -37,6 +38,8 @@ app.use("/roles", roleRouter);
 app.use("/states", stateRouter);
 app.use("/campaigns", campaignRouter);
 app.use("/posts", postRouter);
+app.use("/donate", donate_CampaignRouter);
+app.use("/participate", member_campaignRouter);
 
 const connectDB = async () => {
   try {

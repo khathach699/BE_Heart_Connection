@@ -7,11 +7,14 @@ import UserController from "../controllers/volunteerController";
 const router = Router();
 router.post("/register", register as unknown as any);
 
-router.post("/", UserController.createUser.bind(UserController)); // tạo user
-router.get("/", UserController.getAllUsers.bind(UserController)); // lấy danh sách user đã phân trang
-router.post("/detail", UserController.getUserById.bind(UserController)); // lấy chi tiết user
-router.put("/", UserController.updateUser.bind(UserController)); // cập nhật user
-router.delete("/:id", UserController.deleteUser.bind(UserController)); // xóa user
+router.post("/", UserController.createUser.bind(UserController)); 
+router.get("/", UserController.getAllUsers.bind(UserController)); 
+router.post("/detail", UserController.getUserById.bind(UserController)); 
+router.put("/", UserController.updateUser.bind(UserController)); 
+router.delete("/:id", UserController.deleteUser.bind(UserController)); 
+
+router.get("/me", check_authentication, UserController.getCurrentUser.bind(UserController)); 
+router.get("/my-campaigns", check_authentication, UserController.getUserCampaigns.bind(UserController)); 
 
 router.post(
   "/change_password",

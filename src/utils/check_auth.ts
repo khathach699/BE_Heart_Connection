@@ -43,7 +43,7 @@ export const check_authentication = async function (
 };
 
 // check authorization
-export const check_authorization = async function (requireRole: string[]) {
+export const check_authorization = function (requireRole: string[]) {
   return (req: Request, res: Response, next: NextFunction) => {
     let userRole = (req as any).user.role.name;
     if (!requireRole.includes(userRole)) {

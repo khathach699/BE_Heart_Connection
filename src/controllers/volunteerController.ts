@@ -1,6 +1,9 @@
 import { Request, Response } from "express";
 import userService from "../services/userService";
 import { IUser } from "../types/user";
+import organizationService from "../services/organizationService";
+import campaignService from "../services/campaignService";
+import postService from "../services/postService";
 
 export class UserController {
     async createUser(req: Request, res: Response) {
@@ -21,6 +24,50 @@ export class UserController {
             res.status(200).json(result);
         } catch (error) {
             res.status(500).json({ message: (error as Error).message });
+        }
+    }
+    async getUser(req: Request, res: Response) {
+        try {
+            res.status(200).json(req.user);
+        } catch (error) {
+            res.status(404).json({ message: (error as Error).message });
+        }
+    }
+    async getOrganization(req: Request, res: Response) {
+        try {
+            const User = req.user;
+            const org = await organizationService.getOrganizationByUserId(User._id);
+            res.status(200).json(org);
+        } catch (error) {
+            res.status(404).json({ message: (error as Error).message });
+        }
+    }
+    async getCampaigns(req: Request, res: Response) {
+        try {
+            const User = req.user;
+            if (!User.organization) {
+                res.status(404).json({ message: "Organization not found" });
+            }else {
+                const campaigns = await campaignService.getCampaignsByOrgId(User.organization._id as string);
+                res.status(200).json(campaigns);
+            }
+        }catch (error) {
+            res.status(404).json({ message: (error as Error).message });
+        }
+    }
+    async getPost(req: Request, res: Response) {
+        try {
+            const User = req.user;
+            const page = parseInt(req.query.page as string) || 1;
+            const limit = parseInt(req.query.limit as string) || 10;
+            if (!User.organization) {
+                res.status(404).json({ message: "Organization not found" });
+            }else {
+                const volunteer = await postService.getPostByOrgId(User.organization._id as string, page, limit);
+                res.status(200).json(volunteer);
+            }
+        }catch (error) {
+            res.status(404).json({ message: (error as Error).message });
         }
     }
     async getUserById(req: Request, res: Response) {
@@ -50,5 +97,6 @@ export class UserController {
             res.status(404).json({ message: (error as Error).message });
         }
     }
+
 }
 export default new UserController();

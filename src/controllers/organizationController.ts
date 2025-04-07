@@ -5,7 +5,7 @@ import mongoose from "mongoose";
 export class OrganizationController {
   async requestUpgradeToOrganization(req: Request, res: Response) {
     try {
-      const userId = req.body.userId; // Giả sử userId đang đăng nhập
+      const userId = req.user._id; 
       if (!userId) {
         throw res.status(400).json({ message: "User ID is required" });
       }

@@ -55,7 +55,7 @@ export const SignupValidator = [
 
 export const LoginValidator = [
   body("email").isEmail().withMessage(VALIDATOR_ERRORS.EMAIL),
-  body("password").isLength({ min: 8 }).withMessage(VALIDATOR_ERRORS.PASSWORD),
+  //body("password").isLength({ min: 8 }).withMessage(VALIDATOR_ERRORS.PASSWORD),
 ];
 
 export const ChangePasswordValidator = [

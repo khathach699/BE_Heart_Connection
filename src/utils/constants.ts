@@ -22,7 +22,9 @@ export const AUTH_ERRORS = {
 };
 
 export const PERMISSIONS = {
-  USER: ["user", "mod", "admin"],
-  MOD: ["mod", "admin"],
+  ALL: ["user", "organization", "admin"],
+  MOD: ["user", "organization"],
+  USER: ["user"],
+  ORGANIZATION: ["organization"],
   ADMIN: ["admin"],
 };

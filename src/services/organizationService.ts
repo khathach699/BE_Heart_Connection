@@ -13,7 +13,7 @@ export class OrganizationService {
             console.log(user);
             if (!user) throw new Error("User not found");
             if (user.organization) throw new Error("User already has an organization");
-            const existingRequest = await Organization.findOne({ user: userId, isdeleted: false });
+            const existingRequest = await Organization.findOne({ user: userId, isdeleted: false, isVerified: false });
             if (existingRequest) throw new Error("User already has a request for organization upgrade");
             const organization = new Organization({
                 ...orgData,
@@ -32,18 +32,17 @@ export class OrganizationService {
             if (!organization) throw new Error("Organization not found");
             if (organization.isVerified) throw new Error("Organization already verified");
             organization.isVerified = true;
-            await organization.save();
 
             // Cập nhật role của user thành "Organization"
             const user = await User.findById(organization.user);
             if (user) {
-                const orgRole = await Role.findOne({ name: "Organization" });
-                if (!orgRole) throw new Error("Role 'Organization' not found");
+                const orgRole = await Role.findOne({ name: "organization" });
+                if (!orgRole) throw new Error("Role 'organization' not found");
                 user.role = orgRole._id as mongoose.Types.ObjectId;
                 user.organization = organization._id as mongoose.Types.ObjectId;
                 await user.save();
+                await organization.save();
             }
-
             return organization;
         } catch (error) {
             throw new Error(`Error approving organization: ${(error as Error).message}`);
@@ -97,6 +96,16 @@ export class OrganizationService {
             throw new Error(`Error fetching organization: ${(error as Error).message}`);
         }
     }
+    async getOrganizationByUserId(userId: string): Promise<IOrganizationDocument | null> {
+        try {
+            const organization = await Organization.findOne({ user: userId, isdeleted: false }).populate("user");
+            if (!organization) throw new Error("Organization not found");
+            return organization;
+        }
+        catch (error) {
+            throw new Error(`Error fetching User organization: ${(error as Error).message}`);
+        }
+    }   
     async deleteOrganization(orgId: string) {
         try {
             const result = await Organization.deleteOne({ _id: orgId, isVerified: false, isdeleted: true });

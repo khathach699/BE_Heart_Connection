@@ -14,4 +14,5 @@ router.post("/login", LoginValidator, validate, login as unknown as any);
 router.post("/logout", logout as unknown as any);
 router.post("/forgot-password", forgotPassword as unknown as any);
 router.post("/reset-password", resetPassword as unknown as any);
+
 export default router;

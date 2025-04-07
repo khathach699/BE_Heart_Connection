@@ -35,8 +35,8 @@ export class CampaignService {
                 limit,
                 sort: { createdAt: -1 },
                 populate: [
-                    { path: "organization" }, 
-                    { path: "state" }          
+                    { path: "organization" },
+                    { path: "state" }
                 ],
             };
 
@@ -52,6 +52,14 @@ export class CampaignService {
                 totalPages: result.totalPages,
                 currentPage: result.page,
             };
+        } catch (error) {
+            throw new Error(`Error fetching campaigns: ${(error as Error).message}`);
+        }
+    }
+    async getCampaignsByOrgId(orgId: string) {
+        try {
+            const campaigns = await Campaign.find({ organization: orgId, isdeleted: false }).populate("state");
+            return campaigns;
         } catch (error) {
             throw new Error(`Error fetching campaigns: ${(error as Error).message}`);
         }
@@ -87,7 +95,7 @@ export class CampaignService {
                 sort: { createdAt: -1 },
                 populate: [
                     { path: "organization" },
-                    { path: "state" }        
+                    { path: "state" }
                 ],
             };
 

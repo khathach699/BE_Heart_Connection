@@ -1,5 +1,9 @@
 import { Request, Response } from "express";
 import campaignService from "../services/campaignService";
+import {
+  CreateErrorResponse,
+  CreateSuccessResponse,
+} from "../utils/responnseHandler";
 export class CampaignController {
   async approveCampaign(req: Request, res: Response) {
     try {
@@ -91,45 +95,31 @@ export class CampaignController {
       const featuredCampaigns = await campaignService.getFeaturedCampaigns(
         limit
       );
-
-      res.status(200).json({
-        success: true,
-        data: {
-          featuredCampaigns,
-        },
-      });
+      CreateSuccessResponse(res, 200, featuredCampaigns);
     } catch (error) {
-      res.status(500).json({
-        success: false,
-        message: (error as Error).message,
-      });
+      CreateErrorResponse(res, 500, (error as Error).message);
     }
   }
   async getFeaturedActivities(req: Request, res: Response) {
     try {
       const limit = parseInt(req.query.limit as string) || 3;
-      console.log("getFeaturedActivities controller called with limit:", limit);
+      console.log(
+        "Controller - Getting featured activities with limit:",
+        limit
+      );
 
       const featuredActivities = await campaignService.getFeaturedActivities(
         limit
       );
       console.log(
-        "getFeaturedActivities controller received result with length:",
-        featuredActivities.length
+        "Controller - Received featured activities:",
+        JSON.stringify(featuredActivities, null, 2)
       );
 
-      res.status(200).json({
-        success: true,
-        data: {
-          featuredActivities,
-        },
-      });
+      CreateSuccessResponse(res, 200, featuredActivities);
     } catch (error) {
-      console.error("getFeaturedActivities controller error:", error);
-      res.status(500).json({
-        success: false,
-        message: (error as Error).message,
-      });
+      console.error("Controller - Error in getFeaturedActivities:", error);
+      CreateErrorResponse(res, 500, (error as Error).message);
     }
   }
 }

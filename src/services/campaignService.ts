@@ -178,86 +178,80 @@ export class CampaignService {
           dayStart: -1,
         })
         .limit(limit)
-        .populate("organization")
+        .populate({
+          path: "organization",
+          select: "Inform logo",
+        })
         .setOptions({ strictPopulate: false });
 
-      console.log("Số lượng campaigns tìm thấy:", campaigns.length);
+      console.log(
+        "Service - Raw campaigns data:",
+        JSON.stringify(campaigns, null, 2)
+      );
 
-      if (campaigns.length === 0) {
-        console.log("Không tìm thấy chiến dịch nào thỏa mãn điều kiện");
-        return [];
-      }
-
-      // Debug organization data
-      campaigns.forEach((campaign, index) => {
-        console.log(
-          `Campaign ${index} organization:`,
-          JSON.stringify(campaign.organization)
-        );
-      });
-
-      // Thêm hình ảnh cho mỗi hoạt động
       const activitiesWithImages = await Promise.all(
         campaigns.map(async (campaign) => {
-          try {
-            const images = await ImgCampain.find({
-              CampID: campaign._id,
-              isdeleted: false,
-            });
+          console.log("Service - Processing campaign:", campaign._id);
 
+          const images = await ImgCampain.find({
+            CampID: campaign._id,
+            isdeleted: false,
+          });
+          console.log(
+            "Service - Found images for campaign:",
+            campaign._id,
+            images.length
+          );
+
+          const campaignObj = campaign.toObject();
+          console.log(
+            "Service - Campaign object:",
+            JSON.stringify(campaignObj, null, 2)
+          );
+
+          let organizationInfo = {
+            name: "Tổ chức không xác định",
+            logo: "/src/assets/logos/avt.png",
+          };
+
+          if (
+            campaignObj.organization &&
+            typeof campaignObj.organization === "object"
+          ) {
             console.log(
-              `Campaign ${campaign._id}: Tìm thấy ${images.length} hình ảnh`
+              "Service - Organization data:",
+              JSON.stringify(campaignObj.organization, null, 2)
             );
-
-            // Convert to plain object first
-            const campaignObj = campaign.toObject();
-            console.log("Campaign object:", JSON.stringify(campaignObj));
-
-            // Extract organization info correctly
-            let organizationInfo = {
-              name: "Tổ chức không xác định",
-              logo: "/src/assets/logos/avt.png",
-            };
-
-            if (campaignObj.organization) {
-              console.log(
-                "Found organization:",
-                JSON.stringify(campaignObj.organization)
-              );
-              organizationInfo = {
-                name:
-                  (campaignObj.organization as any).Inform ||
-                  "Tổ chức không xác định",
-                logo:
-                  (campaignObj.organization as any).logo ||
-                  "/src/assets/logos/avt.png",
-              };
-              console.log("Extracted organization info:", organizationInfo);
-            }
-
-            return {
-              ...campaignObj,
-              images: images,
-              organizationInfo,
-            };
-          } catch (error) {
-            console.error(`Lỗi khi xử lý campaign ${campaign._id}:`, error);
-            return {
-              ...campaign.toObject(),
-              images: [],
-              organizationInfo: {
-                name: "Tổ chức không xác định",
-                logo: "/src/assets/logos/avt.png",
-              },
+            organizationInfo = {
+              name:
+                (campaignObj.organization as any).Inform ||
+                "Tổ chức không xác định",
+              logo:
+                (campaignObj.organization as any).logo ||
+                "/src/assets/logos/avt.png",
             };
           }
+
+          const result = {
+            ...campaignObj,
+            images: images,
+            organizationInfo,
+          };
+          console.log(
+            "Service - Final campaign result:",
+            JSON.stringify(result, null, 2)
+          );
+          return result;
         })
       );
 
-      console.log("Final featured activities:", activitiesWithImages.length);
+      console.log(
+        "Service - Final activities array:",
+        JSON.stringify(activitiesWithImages, null, 2)
+      );
       return activitiesWithImages;
     } catch (error) {
-      console.error("Error in getFeaturedActivities:", error);
+      console.error("Service - Error in getFeaturedActivities:", error);
       throw new Error(
         `Error fetching featured activities: ${(error as Error).message}`
       );

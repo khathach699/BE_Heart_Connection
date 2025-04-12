@@ -1,6 +1,12 @@
+import mongoose from "mongoose";
 import Campaign from "../schemas/Campaign";
 import { ICampaign, ICampaignDocument } from "../types/Campagin";
 import ImgCampain from "../schemas/ImgCampain";
+import axios from "axios";
+import fs from "fs";
+import path from "path";
+import ImgCampaign from "../schemas/ImgCampain";
+import FormData from "form-data";
 
 export class CampaignService {
   async approveCampaign(campaignID: string): Promise<ICampaignDocument> {
@@ -18,6 +24,7 @@ export class CampaignService {
       throw new Error(`Error approving campaign: ${(error as Error).message}`);
     }
   }
+
   async rejectCampaign(campaignId: string): Promise<ICampaignDocument> {
     try {
       const campaign = await Campaign.findById(campaignId);
@@ -165,7 +172,6 @@ export class CampaignService {
   }
   async getFeaturedActivities(limit: number = 3) {
     try {
-      // Lấy các chiến dịch đang diễn ra với thông tin tổ chức và ảnh
       const campaigns = await Campaign.find({
         isdeleted: false,
         isAccepted: true,
@@ -210,13 +216,11 @@ export class CampaignService {
             };
           }
 
-          const result = {
+          return {
             ...campaignObj,
             images: images,
             organizationInfo,
           };
-
-          return result;
         })
       );
 
@@ -227,6 +231,7 @@ export class CampaignService {
       );
     }
   }
+
   async updateCampaignDonate(
     campaignId: string,
     amount: number
@@ -270,6 +275,121 @@ export class CampaignService {
         `Error updating campaign participant: ${(error as Error).message}`
       );
     }
+  }
+
+  async getCampaignsByOrgId(orgId: string) {
+    try {
+      const campaigns = await Campaign.find({
+        organization: orgId,
+        isdeleted: false,
+      }).populate("state");
+      return campaigns;
+    } catch (error) {
+      throw new Error(`Error fetching campaigns: ${(error as Error).message}`);
+    }
+  }
+
+  private readonly avatarDir: string = path.join(__dirname, "../images");
+  private readonly serverCDN: string = "http://localhost:4000/upload";
+
+  async createCampaignWithImages(
+    campaignData: ICampaign,
+    files: Express.Multer.File[]
+  ): Promise<{ campaign: ICampaignDocument; images: string[] }> {
+    if (!files || files.length === 0) {
+      throw new Error("Chưa chọn file ảnh");
+    }
+    console.log("check files:", files);
+    const requiredFields: (keyof ICampaign)[] = [
+      "name",
+      "organization",
+      "state",
+      "dayStart",
+      "numberOfDay",
+    ];
+    for (const field of requiredFields) {
+      if (!campaignData[field]) {
+        throw new Error(`Trường ${field} là bắt buộc`);
+      }
+    }
+    let campaign: ICampaignDocument | null = null;
+    try {
+      campaign = new Campaign(campaignData);
+      await campaign.save();
+
+      const imgCampaigns = [];
+      const newForm = new FormData();
+      for (const file of files) {
+        const imgPath = path.join(this.avatarDir, file.filename);
+        newForm.append("images", fs.createReadStream(imgPath));
+      }
+      console.log(
+        "Sending files to CDN with field 'images':",
+        files.map((f) => f.filename)
+      );
+
+      let result;
+      try {
+        result = await axios.post(this.serverCDN, newForm, {
+          headers: { "Content-Type": "multipart/form-data" },
+        });
+        console.log("Response from CDN:", result.data);
+      } catch (axiosError: any) {
+        await Campaign.deleteOne({ _id: campaign._id });
+        throw new Error(`Không thể upload ảnh lên CDN: ${axiosError.message}`);
+      }
+
+      for (const file of files) {
+        const imgPath = path.join(this.avatarDir, file.filename);
+        if (fs.existsSync(imgPath)) fs.unlinkSync(imgPath);
+      }
+
+      const urls = result.data.urls;
+      if (!urls || urls.length !== files.length) {
+        throw new Error(
+          "Số lượng URL trả về từ CDN không khớp với số file gửi lên"
+        );
+      }
+
+      for (const url of urls) {
+        const imgCampaign = new ImgCampaign({
+          campaign: campaign._id,
+          imgUrl: url,
+        });
+
+        try {
+          await imgCampaign.save();
+          imgCampaigns.push(imgCampaign);
+        } catch (imgError: any) {
+          await Campaign.deleteOne({ _id: campaign._id });
+          await ImgCampaign.deleteMany({ campaign: campaign._id });
+          throw new Error(`Không thể lưu ImgCampaign: ${imgError.message}`);
+        }
+      }
+
+      if (imgCampaigns.length > 0) {
+        campaign.img = imgCampaigns[0].imgUrl;
+        await campaign.save();
+      }
+
+      return {
+        campaign,
+        images: imgCampaigns.map((img) => img.imgUrl),
+      };
+    } catch (error) {
+      if (campaign) {
+        await Campaign.deleteOne({ _id: campaign._id });
+        await ImgCampaign.deleteMany({ campaign: campaign._id });
+      }
+      throw error;
+    }
+  }
+
+  cleanupFiles(files: Express.Multer.File[]): void {
+    files.forEach((file) => {
+      const imgPath = path.join(this.avatarDir, file.filename);
+      if (fs.existsSync(imgPath)) fs.unlinkSync(imgPath);
+    });
   }
 }
 

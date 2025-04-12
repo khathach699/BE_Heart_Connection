@@ -9,7 +9,10 @@ export const GetAllUser = async function () {
 };
 
 export const GetUserByID = async function (id: string) {
-  return await userSchema.findById(id).populate("role");
+  return await userSchema.findById(id).populate([
+    { path: "role" },
+    { path: "organization" }
+  ]);;
 };
 
 export const GetUserByEmail = async function (email: string) {

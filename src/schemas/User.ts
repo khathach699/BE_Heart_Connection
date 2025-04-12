@@ -22,6 +22,7 @@ const userSchema = new Schema<UserDocument>(
       ref: "Role",
       required: true,
     },
+    organization: { type: Schema.Types.ObjectId, ref: "Organization", default: null },
     otpCode: { type: String },
     otpExpires: { type: Number },
     isdeleted: { type: Boolean, default: false },

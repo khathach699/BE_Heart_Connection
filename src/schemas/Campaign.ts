@@ -55,7 +55,7 @@ const campaignSchema = new Schema<ICampaignDocument>(
       default: 0,
     },
     img: {
-      type: String,
+      type: String, default: null,
     },
   },
   {

@@ -127,6 +127,31 @@ export class PostService {
             throw new Error(`Error liking post: ${(error as Error).message}`);
         }
     }
+    async getPostByOrgId(orgId: string, page: number, limit: number) {
+        try {
+            const options = {
+                page,
+                limit,
+                sort: { createdAt: -1 },
+                populate: "organization",
+            };
+
+            const result = await Post.paginate(
+                { organization: orgId, isdeleted: false },
+                options
+            );
+
+            return {
+                posts: result.docs,
+                total: result.totalDocs,
+                totalPages: result.totalPages,
+                currentPage: result.page,
+            };
+        } catch (error) {
+            throw new Error(`Error fetching post by orgId: ${(error as Error).message}`);
+        }
+    }
+        
 }
 
 export default new PostService();

@@ -33,8 +33,9 @@ export class UserController {
   async getAllUsers(req: Request, res: Response) {
     try {
       const page = parseInt(req.query.page as string) || 1;
-      const limit = parseInt(req.query.limit as string) || 1;
-      const result = await userService.getAllUsers(page, limit);
+      const limit = parseInt(req.query.limit as string) || 10;
+      const isdeleted = req.query.isdeleted as string;
+      const result = await userService.getAllUsers(page, limit, isdeleted); //Thêm isdeleted vào đây để check xóa hay không
       return CreateSuccessResponse(res, 200, {
         result,
       });

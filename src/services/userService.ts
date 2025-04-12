@@ -13,16 +13,17 @@ export class UserService {
       throw new Error(`Error creating user: ${(error as Error).message}`);
     }
   }
-  async getAllUsers(page: number = 1, limit: number = 1) {
+  async getAllUsers(page: number = 1, limit: number = 1, isdeleted: string ): Promise<any> {
     try {
       const options = {
         page,
         limit,
+        isdeleted: isdeleted === "true" ? true : false,
         sort: { createdAt: -1 },
         populate: { path: "role" },
       };
       const result = await (User as any).paginate(
-        { isdeleted: false },
+        { isdeleted: options.isdeleted },
         options
       );
       if (page > result.totalPages && result.totalDocs > 0) {

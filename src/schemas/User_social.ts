@@ -1,7 +1,8 @@
 import mongoose from "mongoose";
-const Schema = mongoose.Schema;
-
-const userSocialSchema = new Schema(
+import mongoosePaginate from "mongoose-paginate-v2";
+import {IUserSocialDocument } from "../types/User_social";
+const { Schema } = mongoose;
+const userSocialSchema = new Schema<IUserSocialDocument>(
   {
     user: {
       type: Schema.Types.ObjectId,
@@ -10,7 +11,7 @@ const userSocialSchema = new Schema(
     },
     social_type: {
       type: Schema.Types.ObjectId,
-      ref: "SocialType",
+      ref: "social_type",
       required: true,
     },
     link: {
@@ -18,7 +19,7 @@ const userSocialSchema = new Schema(
       required: true,
       trim: true,
     },
-    isdelete: {
+    isdeleted: {
       type: Boolean,
       default: false,
     },
@@ -28,6 +29,6 @@ const userSocialSchema = new Schema(
   }
 );
 
-const UserSocial = mongoose.model("UserSocial", userSocialSchema);
-
+userSocialSchema.plugin(mongoosePaginate);
+const UserSocial = mongoose.model<IUserSocialDocument, mongoose.PaginateModel<IUserSocialDocument>>("UserSocial", userSocialSchema);
 export default UserSocial;

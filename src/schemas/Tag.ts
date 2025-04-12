@@ -1,7 +1,10 @@
-const mongoose = require("mongoose");
-const Schema = mongoose.Schema;
+import { ITagDocument} from "../types/Tag";
+import mongoose from "mongoose";
+import mongoosePaginate from "mongoose-paginate-v2";
 
-const tagSchema = new Schema(
+
+const { Schema } = mongoose;
+const tagSchema = new Schema<ITagDocument>(
   {
     name: {
       type: String,
@@ -26,6 +29,6 @@ const tagSchema = new Schema(
   }
 );
 
-const Tag = mongoose.model("Tag", tagSchema);
-
+tagSchema.plugin(mongoosePaginate);
+const Tag = mongoose.model<ITagDocument, mongoose.PaginateModel<ITagDocument>>("Tag", tagSchema);
 export default Tag;

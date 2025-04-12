@@ -1,7 +1,9 @@
 import mongoose from "mongoose";
-const Schema = mongoose.Schema;
+import mongoosePaginate from "mongoose-paginate-v2";
+import { ISocialType, ISocialTypeDocument } from "../types/social_type";
+const { Schema } = mongoose;
 
-const socialTypeSchema = new Schema(
+const socialTypeSchema = new Schema<ISocialType>(
   {
     name: {
       type: String,
@@ -22,6 +24,6 @@ const socialTypeSchema = new Schema(
   }
 );
 
-const SocialType = mongoose.model("SocialType", socialTypeSchema);
-
+socialTypeSchema.plugin(mongoosePaginate);
+const SocialType = mongoose.model<ISocialType, mongoose.PaginateModel<ISocialTypeDocument>>("social_type", socialTypeSchema);
 export default SocialType;

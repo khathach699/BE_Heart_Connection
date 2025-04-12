@@ -13,7 +13,7 @@ export interface ICampaign {
     dayStart: Date;
     numberOfDay: number;
     participated: number;
-    img: string;
+    img: string | null;
 }
 
 export interface ICampaignDocument extends ICampaign, Document {

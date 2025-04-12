@@ -2,12 +2,14 @@ import { Request, Response } from "express";
 import organizationService from "../services/organizationService";
 import { IOrganization } from "../types/Organization";
 import mongoose from "mongoose";
+import { CreateErrorResponse, CreateSuccessResponse } from "../utils/responnseHandler";
+
 export class OrganizationController {
   async requestUpgradeToOrganization(req: Request, res: Response) {
     try {
       const userId = req.user._id; 
       if (!userId) {
-        throw res.status(400).json({ message: "User ID is required" });
+        throw CreateErrorResponse(res, 400, "User ID is required");
       }
       const orgData: Partial<IOrganization> = {
         info: req.body.info,
@@ -17,42 +19,35 @@ export class OrganizationController {
       };
       const organization =
         await organizationService.requestUpgradeToOrganization(userId, orgData);
-      res
-        .status(201)
-        .json({
-          message: "Organization request created, awaiting approval",
-          organization,
-        });
+      CreateSuccessResponse(res, 201, organization);
     } catch (error) {
-      res.status(404).json({ message: (error as Error).message });
+      CreateErrorResponse(res, 400, (error as Error).message);
     }
   }
 
   async approveOrganization(req: Request, res: Response) {
     try {
-      const orgId = req.params.id; // Giả sử orgId được gửi từ admin
+      const orgId = req.params.id; 
       if (!orgId) {
-        throw res.status(400).json({ message: "Organization ID is required" });
+        throw CreateErrorResponse(res, 400, "Organization ID is required");
       }
 
       const organization = await organizationService.approveOrganization(orgId);
-      res.status(200).json({ message: "Organization approved", organization });
+      CreateSuccessResponse(res, 200, {message: "Organization request approved",organization});
     } catch (error) {
-      res.status(400).json({ message: (error as Error).message });
+      CreateErrorResponse(res, 400, (error as Error).message);
     }
   }
   async rejectOrganization(req: Request, res: Response) {
     try {
       const orgId = req.params.id;
       if (!orgId) {
-        throw res.status(400).json({ message: "Organization ID is required" });
+        throw CreateErrorResponse(res, 400, "Organization ID is required");
       }
       const organization = await organizationService.rejectOrganization(orgId);
-      res
-        .status(200)
-        .json({ message: "Organization request rejected", organization });
+      CreateSuccessResponse(res, 200, {message: "Organization request rejected",organization});
     } catch (error) {
-      res.status(400).json({ message: (error as Error).message });
+      CreateErrorResponse(res, 400, (error as Error).message);
     }
   }
   async getAllOrganizations(req: Request, res: Response) {
@@ -71,34 +66,34 @@ export class OrganizationController {
         limit,
         isVerified
       );
-      res.status(200).json(result);
+      CreateSuccessResponse(res, 200, result);
     } catch (error) {
-      res.status(500).json({ message: (error as Error).message });
+      CreateErrorResponse(res, 500, (error as Error).message);
     }
   }
   async getOrganizationById(req: Request, res: Response) {
     try {
       const orgId = req.params.id;
       if (!orgId) {
-        throw res.status(400).json({ message: "Organization ID is required" });
+        throw CreateErrorResponse(res, 400, "Organization ID is required");
       }
 
       const organization = await organizationService.getOrganizationById(orgId);
-      res.status(200).json(organization);
+      CreateSuccessResponse(res, 200, organization);
     } catch (error) {
-      res.status(404).json({ message: (error as Error).message });
+      CreateErrorResponse(res, 404, (error as Error).message);
     }
   }
   async deleteOrganization(req: Request, res: Response) {
     try {
       const orgId = req.params.id;
       if (!orgId) {
-        throw res.status(400).json({ message: "Organization ID is required" });
+        throw CreateErrorResponse(res, 400, "Organization ID is required");
       }
       const organization = await organizationService.deleteOrganization(orgId);
-      res.status(200).json({ message: "Organization deleted", organization });
+      CreateSuccessResponse(res, 200, { message: "Organization deleted", organization });
     } catch (error) {
-      res.status(404).json({ message: (error as Error).message });
+      CreateErrorResponse(res, 404, (error as Error).message);
     }
   }
   async getAllOrganizationsWasReject(req: Request, res: Response) {
@@ -109,9 +104,9 @@ export class OrganizationController {
         page,
         limit
       );
-      res.status(200).json(result);
+      CreateSuccessResponse(res, 200, result);
     } catch (error) {
-      res.status(500).json({ message: (error as Error).message });
+      CreateErrorResponse(res, 500, (error as Error).message);
     }
   }
 }

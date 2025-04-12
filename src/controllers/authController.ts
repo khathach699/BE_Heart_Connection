@@ -4,6 +4,7 @@ import {
   CheckLogin,
   ForgotPassword,
   ResetPassword,
+  ResetPasswordNotOtp,
 } from "../services/authService";
 import {
   CreateSuccessResponse,
@@ -83,4 +84,17 @@ export const resetPassword = async (req: Request, res: Response) => {
   }
 };
 
+export const resetPasswordNotOtp = async (req: Request, res: Response) => {
+  try {
+    const { userId, oldPassword, newPassword } = req.body as {
+      userId: string;
+      oldPassword: string;
+      newPassword: string;
+    };
+    await ResetPasswordNotOtp(userId, oldPassword, newPassword);
+    return CreateSuccessResponse(res, 200, { message: "Password reset" });
+  } catch (error: any) {
+    return CreateErrorResponse(res, 400, error.message);
+  }
+};
 export default { register, login, forgotPassword, resetPassword };

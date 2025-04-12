@@ -9,10 +9,9 @@ export const GetAllUser = async function () {
 };
 
 export const GetUserByID = async function (id: string) {
-  return await userSchema.findById(id).populate([
-    { path: "role" },
-    { path: "organization" }
-  ]);;
+  return await userSchema
+    .findById(id)
+    .populate([{ path: "role" }, { path: "organization" }]);
 };
 
 export const GetUserByEmail = async function (email: string) {
@@ -149,5 +148,22 @@ export const ResetPassword = async function (otp: string, newPassword: string) {
     await user.save();
   } catch (error: any) {
     throw new Error(error.message);
+  }
+};
+
+export const ResetPasswordNotOtp = async function (
+  userId: string,
+  oldPassword: string,
+  newPassword: string
+) {
+  const user = await userSchema.findById(userId);
+  if (!user) {
+    throw new Error(AUTH_ERRORS.EMAIL_NOT_FOUND);
+  }
+  if (bcrypt.compareSync(oldPassword, user.password)) {
+    user.password = newPassword;
+    await user.save();
+  } else {
+    throw new Error(AUTH_ERRORS.WRONG_PASSWORD);
   }
 };

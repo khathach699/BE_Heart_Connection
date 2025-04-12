@@ -5,6 +5,7 @@ import {
   logout,
   forgotPassword,
   resetPassword,
+  resetPasswordNotOtp,
 } from "../controllers/authController";
 import { validate, SignupValidator, LoginValidator } from "../utils/validator";
 
@@ -14,5 +15,6 @@ router.post("/login", LoginValidator, validate, login as unknown as any);
 router.post("/logout", logout as unknown as any);
 router.post("/forgot-password", forgotPassword as unknown as any);
 router.post("/reset-password", resetPassword as unknown as any);
+router.post("/resetPasswordNotOtp", resetPasswordNotOtp as unknown as any);
 
 export default router;

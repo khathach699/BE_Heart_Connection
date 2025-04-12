@@ -1,35 +1,44 @@
 import { Request, Response } from "express";
 import campaignService from "../services/campaignService";
 import {
-  CreateErrorResponse,
   CreateSuccessResponse,
+  CreateErrorResponse,
 } from "../utils/responnseHandler";
+
 export class CampaignController {
   async approveCampaign(req: Request, res: Response) {
     try {
       const campaignId = req.params.id;
       if (!campaignId) {
-        throw res.status(400).json({ message: "Campaign ID is required" });
+        return CreateErrorResponse(res, 400, "Campaign ID is required");
       }
 
       const campaign = await campaignService.approveCampaign(campaignId);
-      res.status(200).json({ message: "Campaign approved", campaign });
+      return CreateSuccessResponse(res, 200, {
+        message: "Campaign approved",
+        campaign,
+      });
     } catch (error) {
-      res.status(400).json({ message: (error as Error).message });
+      return CreateErrorResponse(res, 400, (error as Error).message);
     }
   }
+
   async rejectCampaign(req: Request, res: Response) {
     try {
       const campaignId = req.params.id;
       if (!campaignId) {
-        throw res.status(400).json({ message: "Campaign ID is required" });
+        return CreateErrorResponse(res, 400, "Campaign ID is required");
       }
       const campaign = await campaignService.rejectCampaign(campaignId);
-      res.status(200).json({ message: "Campaign request rejected", campaign });
+      return CreateSuccessResponse(res, 200, {
+        message: "Campaign request rejected",
+        campaign,
+      });
     } catch (error) {
-      res.status(400).json({ message: (error as Error).message });
+      return CreateErrorResponse(res, 400, (error as Error).message);
     }
   }
+
   async getAllCampaigns(req: Request, res: Response) {
     try {
       const page = parseInt(req.query.page as string) || 1;
@@ -46,36 +55,42 @@ export class CampaignController {
         limit,
         isAccepted
       );
-      res.status(200).json(result);
+      return CreateSuccessResponse(res, 200, result);
     } catch (error) {
-      res.status(500).json({ message: (error as Error).message });
+      return CreateErrorResponse(res, 500, (error as Error).message);
     }
   }
+
   async getCampaignById(req: Request, res: Response) {
     try {
       const campaignId = req.params.id;
       if (!campaignId) {
-        throw res.status(400).json({ message: "Campaign ID is required" });
+        return CreateErrorResponse(res, 400, "Campaign ID is required");
       }
 
       const campaign = await campaignService.getCampaignById(campaignId);
-      res.status(200).json(campaign);
+      return CreateSuccessResponse(res, 200, campaign);
     } catch (error) {
-      res.status(404).json({ message: (error as Error).message });
+      return CreateErrorResponse(res, 404, (error as Error).message);
     }
   }
+
   async deleteCampaign(req: Request, res: Response) {
     try {
       const campaignId = req.params.id;
       if (!campaignId) {
-        throw res.status(400).json({ message: "Campaign ID is required" });
+        return CreateErrorResponse(res, 400, "Campaign ID is required");
       }
       const campaign = await campaignService.deleteCampaign(campaignId);
-      res.status(200).json({ message: "Campaign deleted", campaign });
+      return CreateSuccessResponse(res, 200, {
+        message: "Campaign deleted",
+        campaign,
+      });
     } catch (error) {
-      res.status(404).json({ message: (error as Error).message });
+      return CreateErrorResponse(res, 404, (error as Error).message);
     }
   }
+
   async getAllCampaignsWasReject(req: Request, res: Response) {
     try {
       const page = parseInt(req.query.page as string) || 1;
@@ -84,11 +99,12 @@ export class CampaignController {
         page,
         limit
       );
-      res.status(200).json(result);
+      return CreateSuccessResponse(res, 200, result);
     } catch (error) {
-      res.status(500).json({ message: (error as Error).message });
+      return CreateErrorResponse(res, 500, (error as Error).message);
     }
   }
+
   async getFeaturedCampaigns(req: Request, res: Response) {
     try {
       const limit = parseInt(req.query.limit as string) || 5;

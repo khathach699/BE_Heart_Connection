@@ -1,8 +1,9 @@
 import Post from "../schemas/Post";
 import { IPost, IPostDocument } from "../types/Post";
+import PostLike from "../schemas/Post_like";
 
 export class PostService {
-    async approvePost(postId: string): Promise<IPostDocument> {
+  async approvePost(postId: string): Promise<IPostDocument> {
         try {
             const post = await Post.findOne({ _id: postId, isdeleted: false });
             if (!post) throw new Error("Post not found");
@@ -95,6 +96,35 @@ export class PostService {
             };
         } catch (error) {
             throw new Error(`Error fetching post: ${(error as Error).message}`);
+        }
+    }
+    async likePost(postId: string, userId: string): Promise<IPostDocument> {
+        try {
+            const existingLike = await PostLike.findOne({
+                post: postId,
+                user: userId,
+                isdeleted: false
+            });
+
+            if (existingLike) {
+                throw new Error("User has already liked this post");
+            }
+            const newLike = new PostLike({
+                post: postId,
+                user: userId
+            });
+            await newLike.save();
+            const post = await Post.findById(postId);
+            if (!post) {
+                throw new Error("Post not found");
+            }
+
+            post.liked = (post.liked || 0) + 1;
+            await post.save();
+
+            return post;
+        } catch (error) {
+            throw new Error(`Error liking post: ${(error as Error).message}`);
         }
     }
 }

@@ -227,6 +227,50 @@ export class CampaignService {
       );
     }
   }
+  async updateCampaignDonate(
+    campaignId: string,
+    amount: number
+  ): Promise<ICampaignDocument> {
+    try {
+      const campaign = await Campaign.findById(campaignId);
+      if (!campaign) throw new Error("Campaign not found");
+
+      if (campaign.amountOfMoney >= campaign.donate) {
+        throw new Error("Campaign has reached its donation goal");
+      }
+      const currentDonate = Number(campaign.amountOfMoney) || 0;
+      const donateAmount = Number(amount) || 0;
+      campaign.amountOfMoney = currentDonate + donateAmount;
+
+      await campaign.save();
+
+      return campaign;
+    } catch (error) {
+      throw new Error(
+        `Error updating campaign donate: ${(error as Error).message}`
+      );
+    }
+  }
+
+  async updateCampaignParticipant(
+    campaignId: string
+  ): Promise<ICampaignDocument> {
+    try {
+      const campaign = await Campaign.findById(campaignId);
+      if (!campaign) throw new Error("Campaign not found");
+
+      const currentParticipant = Number(campaign.numberOfPeople) || 0;
+      campaign.numberOfPeople = currentParticipant + 1;
+
+      await campaign.save();
+
+      return campaign;
+    } catch (error) {
+      throw new Error(
+        `Error updating campaign participant: ${(error as Error).message}`
+      );
+    }
+  }
 }
 
 export default new CampaignService();

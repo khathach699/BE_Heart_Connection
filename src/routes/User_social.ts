@@ -1,0 +1,10 @@
+import { Router } from "express";
+import UserSocialController from "../controllers/User_socialController";
+import { check_authentication } from "../utils/check_auth";
+const router = Router();
+router.post("/", check_authentication, UserSocialController.createUserSocial as unknown as any); 
+router.get("/", UserSocialController.getAllUserSocials as unknown as any); 
+router.get("/:id", UserSocialController.getUserSocialById as unknown as any); 
+router.put("/:id", UserSocialController.updateUserSocial as unknown as any);
+router.delete("/:id", UserSocialController.deleteUserSocial as unknown as any);
+export default router;

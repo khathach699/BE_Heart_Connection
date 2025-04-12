@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { IState, IStateDocument } from "../types/State";
+import {IStateDocument } from "../types/State";
 import mongoosePaginate from "mongoose-paginate-v2";
 const { Schema } = mongoose;
 

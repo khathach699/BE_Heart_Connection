@@ -16,6 +16,12 @@ import campaignRouter from "./src/routes/campaigns";
 import postRouter from "./src/routes/posts";
 import donate_CampaignRouter from "./src/routes/Donate_campaign";
 import member_campaignRouter from "./src/routes/Member_campaign";
+import Type_tagRouter from "./src/routes/Type_tag";
+import TagRouter from "./src/routes/Tag";
+import CampTagRouter from "./src/routes/Camp_tag";
+import SocialTypeController from "./src/routes/social_type";
+import UserSocialRouter from "./src/routes/User_social";
+import notificationRouter from "./src/routes/notification";
 
 dotenv.config();
 
@@ -40,6 +46,12 @@ app.use("/campaigns", campaignRouter);
 app.use("/posts", postRouter);
 app.use("/donate", donate_CampaignRouter);
 app.use("/participate", member_campaignRouter);
+app.use("/typetags", Type_tagRouter);
+app.use("/tags", TagRouter);  
+app.use("/camptags", CampTagRouter);
+app.use("/socialtypes", SocialTypeController);
+app.use("/usersocials", UserSocialRouter);
+app.use("/notifications", notificationRouter);
 
 const connectDB = async () => {
   try {

@@ -1,7 +1,8 @@
 import mongoose from "mongoose";
-const Schema = mongoose.Schema;
-
-const campTagSchema = new Schema(
+import { ICampaignTag, ICampaignTagDocument } from "../types/Camp_tag";
+const { Schema } = mongoose;
+import mongoosePaginate from "mongoose-paginate-v2";
+const campTagSchema = new Schema<ICampaignTag>(
   {
     campaign: {
       type: Schema.Types.ObjectId,
@@ -24,6 +25,6 @@ const campTagSchema = new Schema(
   }
 );
 
-const CampTag = mongoose.model("CampTag", campTagSchema);
-
-export default CampTag;
+campTagSchema.plugin(mongoosePaginate);
+const Camp_tag = mongoose.model<ICampaignTag, mongoose.PaginateModel<ICampaignTagDocument>>("CampTag", campTagSchema);
+export default Camp_tag;

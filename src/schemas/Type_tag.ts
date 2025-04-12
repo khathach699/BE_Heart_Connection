@@ -1,7 +1,8 @@
 import mongoose from "mongoose";
-const Schema = mongoose.Schema;
-
-const typeTagSchema = new Schema(
+import {ITypeTagDocument } from "../types/Type_tag";
+import mongoosePaginate from "mongoose-paginate-v2";
+const { Schema } = mongoose;
+const typeTagSchema = new Schema<ITypeTagDocument>(
   {
     name: {
       type: String,
@@ -17,5 +18,6 @@ const typeTagSchema = new Schema(
   }
 );
 
-const TypeTag = mongoose.model("TypeTag", typeTagSchema);
+typeTagSchema.plugin(mongoosePaginate);
+const TypeTag = mongoose.model<ITypeTagDocument, mongoose.PaginateModel<ITypeTagDocument>>("TypeTag", typeTagSchema);
 export default TypeTag;

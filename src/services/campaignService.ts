@@ -165,8 +165,6 @@ export class CampaignService {
   }
   async getFeaturedActivities(limit: number = 3) {
     try {
-      console.log("getFeaturedActivities called with limit:", limit);
-
       // Lấy các chiến dịch đang diễn ra với thông tin tổ chức và ảnh
       const campaigns = await Campaign.find({
         isdeleted: false,
@@ -184,30 +182,14 @@ export class CampaignService {
         })
         .setOptions({ strictPopulate: false });
 
-      console.log(
-        "Service - Raw campaigns data:",
-        JSON.stringify(campaigns, null, 2)
-      );
-
       const activitiesWithImages = await Promise.all(
         campaigns.map(async (campaign) => {
-          console.log("Service - Processing campaign:", campaign._id);
-
           const images = await ImgCampain.find({
             CampID: campaign._id,
             isdeleted: false,
           });
-          console.log(
-            "Service - Found images for campaign:",
-            campaign._id,
-            images.length
-          );
 
           const campaignObj = campaign.toObject();
-          console.log(
-            "Service - Campaign object:",
-            JSON.stringify(campaignObj, null, 2)
-          );
 
           let organizationInfo = {
             name: "Tổ chức không xác định",
@@ -218,10 +200,6 @@ export class CampaignService {
             campaignObj.organization &&
             typeof campaignObj.organization === "object"
           ) {
-            console.log(
-              "Service - Organization data:",
-              JSON.stringify(campaignObj.organization, null, 2)
-            );
             organizationInfo = {
               name:
                 (campaignObj.organization as any).Inform ||
@@ -237,21 +215,13 @@ export class CampaignService {
             images: images,
             organizationInfo,
           };
-          console.log(
-            "Service - Final campaign result:",
-            JSON.stringify(result, null, 2)
-          );
+
           return result;
         })
       );
 
-      console.log(
-        "Service - Final activities array:",
-        JSON.stringify(activitiesWithImages, null, 2)
-      );
       return activitiesWithImages;
     } catch (error) {
-      console.error("Service - Error in getFeaturedActivities:", error);
       throw new Error(
         `Error fetching featured activities: ${(error as Error).message}`
       );

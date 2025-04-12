@@ -22,11 +22,8 @@ export class MemberCampaignController {
           ) as any;
           if (decoded && decoded.id) {
             userId = decoded.id;
-            console.log("Using ID from JWT token:", userId);
           }
-        } catch (err) {
-          console.error("Error decoding JWT:", err);
-        }
+        } catch (err) {}
       }
 
       if (!userId) {
@@ -36,9 +33,6 @@ export class MemberCampaignController {
         });
       }
 
-      console.log("User ID from request:", userId);
-
-      // Chuyển đổi userId thành ObjectId nếu là chuỗi
       const userObjectId = mongoose.Types.ObjectId.isValid(userId)
         ? new mongoose.Types.ObjectId(userId)
         : userId;

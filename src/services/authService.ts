@@ -39,7 +39,6 @@ export const CreateAnUser = async function (
       name: role,
     });
 
-    console.log(fullname, password, email, role);
     if (roleObj) {
       let newUser = new userSchema({
         email: email,
@@ -134,7 +133,6 @@ export const GetUserByOtp = async function (otp: string) {
 
 export const ResetPassword = async function (otp: string, newPassword: string) {
   try {
-    console.log(otp, newPassword);
     const user = await GetUserByOtp(otp);
 
     if (!user || Date.now() > (user as any).otpExpires) {

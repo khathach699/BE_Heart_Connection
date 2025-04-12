@@ -103,22 +103,13 @@ export class CampaignController {
   async getFeaturedActivities(req: Request, res: Response) {
     try {
       const limit = parseInt(req.query.limit as string) || 3;
-      console.log(
-        "Controller - Getting featured activities with limit:",
-        limit
-      );
 
       const featuredActivities = await campaignService.getFeaturedActivities(
         limit
       );
-      console.log(
-        "Controller - Received featured activities:",
-        JSON.stringify(featuredActivities, null, 2)
-      );
 
       CreateSuccessResponse(res, 200, featuredActivities);
     } catch (error) {
-      console.error("Controller - Error in getFeaturedActivities:", error);
       CreateErrorResponse(res, 500, (error as Error).message);
     }
   }

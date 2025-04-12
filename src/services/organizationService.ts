@@ -13,7 +13,6 @@ export class OrganizationService {
   ): Promise<IOrganizationDocument> {
     try {
       const user = await userService.getUserById(userId);
-      console.log(user);
       if (!user) throw new Error("User not found");
       if (user.organization)
         throw new Error("User already has an organization");

@@ -20,7 +20,6 @@ interface ChangePasswordRequestBody {
 export class UserController {
   async createUser(req: Request, res: Response) {
     try {
-      console.log(req.body);
       const userData: IUser = req.body;
       const newUser = await userService.createUser(userData);
       return CreateSuccessResponse(res, 200, {

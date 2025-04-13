@@ -7,7 +7,7 @@ import fs from "fs";
 import path from "path";
 import ImgCampaign from "../schemas/ImgCampain";
 import FormData from "form-data";
-
+import removeAccents from 'remove-accents';
 export class CampaignService {
   async approveCampaign(campaignID: string): Promise<ICampaignDocument> {
     try {
@@ -148,17 +148,17 @@ export class CampaignService {
             organizationInfo:
               campaign.organization && typeof campaign.organization === "object"
                 ? {
-                    name:
-                      (campaign.organization as any).Inform ||
-                      "Tổ chức không xác định",
-                    logo:
-                      (campaign.organization as any).logo ||
-                      "/src/assets/logos/avt.png",
-                  }
+                  name:
+                    (campaign.organization as any).Inform ||
+                    "Tổ chức không xác định",
+                  logo:
+                    (campaign.organization as any).logo ||
+                    "/src/assets/logos/avt.png",
+                }
                 : {
-                    name: "Tổ chức không xác định",
-                    logo: "/src/assets/logos/avt.png",
-                  },
+                  name: "Tổ chức không xác định",
+                  logo: "/src/assets/logos/avt.png",
+                },
           };
         })
       );
@@ -340,10 +340,10 @@ export class CampaignService {
       if (!Array.isArray(urls) || urls.length !== files.length) {
         throw new Error("Số lượng URL trả về từ CDN không khớp với số file gửi lên");
       }
-      
+
       for (const url of urls) {
         const imgCampaign = new ImgCampaign({
-          CampID: campaign._id ,
+          CampID: campaign._id,
           imgUrl: url,
         });
 
@@ -381,44 +381,42 @@ export class CampaignService {
     });
   }
   async searchCampaign(searchQuery: string, page: number = 1, limit: number = 10) {
-          try {
-              const options = {
-                  page,
-                  limit,
-                  sort: { createdAt: -1 },
-                  populate: [{
-                      path: 'organization',
-                      select: 'info'
-                  },
-                  {
-                    path: 'state',
-                    select: 'name'
-                  },
-                  {
-                    path: 'img',
-                  }
-                ]
-              };
-  
-              const query = {
-                  isdeleted: false,
-                  $or: [
-                      { name: { $regex: searchQuery, $options: 'i' } },
-                  ]
-              };
-  
-              const result = await Campaign.paginate(query, options);
-  
-              return {
-                  campaigns: result.docs,
-                  total: result.totalDocs,
-                  totalPages: result.totalPages,
-                  currentPage: result.page,
-              };
-          } catch (error) {
-              throw new Error(`Error searching campaigns: ${(error as Error).message}`);
-          }
+    try {
+      const allCampaigns = await Campaign.find({ isdeleted: false })
+        .populate('organization', 'info')
+        .populate('state', 'name')
+        .populate('img')
+        .sort({ createdAt: -1 });
+
+      let filteredCampaigns = allCampaigns;
+
+      if (searchQuery && searchQuery.trim() !== '') {
+        const normalizedSearch = removeAccents(searchQuery.toLowerCase());
+        const tokens = normalizedSearch.split(/\s+/).filter(Boolean);
+
+        filteredCampaigns = allCampaigns.filter((camp) => {
+          const nameNormalized = removeAccents(camp.name.toLowerCase());
+
+          return tokens.every(token => nameNormalized.includes(token));
+        });
       }
+
+      const total = filteredCampaigns.length;
+      const totalPages = Math.ceil(total / limit);
+      const offset = (page - 1) * limit;
+      const paginatedCampaigns = filteredCampaigns.slice(offset, offset + limit);
+
+      return {
+        campaigns: paginatedCampaigns,
+        total,
+        totalPages,
+        currentPage: page,
+      };
+    } catch (error) {
+      throw new Error(`Error searching campaigns: ${(error as Error).message}`);
+    }
+  }
+
 }
 
 export default new CampaignService();

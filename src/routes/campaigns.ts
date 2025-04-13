@@ -28,7 +28,7 @@ const upload = multer({
 });
 const router = express.Router();
 router.get(
-  "/search",
+  "/",
   campaignController.searchCampaigns as unknown as any
 );
 router.put(

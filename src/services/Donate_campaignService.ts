@@ -1,5 +1,7 @@
+import { model } from "mongoose";
 import Donate_campaign from "../schemas/Donate_campaign";
 import { IDonateCampaign, IDonateCampaignDocument } from "../types/Donate_campaign";
+import { populate } from "dotenv";
 
 export class Donate_campaignService {
   async saveDonatedInfo(donatedInfo: IDonateCampaign): Promise<IDonateCampaign> {
@@ -17,8 +19,9 @@ export class Donate_campaignService {
         limit,
         sort: { createdAt: -1 },
         populate: [
-          {path: "user"},
-          {path: "campaign"}
+          {path: "user", select: "fullname"},
+          {path: "campaign",model: "Campaign", select: "name",
+          populate: {path: "organization", model: "Organization", select: "info"}}
         ]
       };
       const result = await (Donate_campaign as any).paginate(
@@ -40,7 +43,11 @@ export class Donate_campaignService {
   }
   async getDonatedInfoById(id: string): Promise<IDonateCampaignDocument> {
     try {
-      const donateInfo = await Donate_campaign.findOne({ _id: id, isdeleted: false }).populate("user").populate("campaign");
+      const donateInfo = await Donate_campaign.findOne({ _id: id, isdeleted: false }).populate([
+        {path: "user", select: "fullname"},
+        {path: "campaign",model: "Campaign", select: "name",
+        populate: {path: "organization", model: "Organization", select: "info"}}
+      ])
       if (!donateInfo) throw new Error("Donate not found");
       return donateInfo as unknown as IDonateCampaignDocument;
     } catch (error) {

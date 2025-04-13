@@ -4,7 +4,7 @@ import { IUser } from "../types/user";
 import { Change_Password } from "../services/authService";
 import { CreateErrorResponse } from "../utils/responnseHandler";
 import { CreateSuccessResponse } from "../utils/responnseHandler";
-import memberCampaignService from "../services/memberCampaignService";
+
 import axios from "axios";
 import fs from "fs";
 import path from "path";
@@ -223,18 +223,6 @@ export class UserController {
       return CreateSuccessResponse(res, 200, user);
     } catch (error) {
       return CreateErrorResponse(res, 404, (error as Error).message);
-    }
-  }
-
-  async getUserCampaigns(req: Request, res: Response) {
-    try {
-      const userId = req.user._id;
-      const campaignsResult = await memberCampaignService.getUserCampaigns(
-        userId
-      );
-      return CreateSuccessResponse(res, 200, campaignsResult);
-    } catch (error) {
-      return CreateErrorResponse(res, 500, (error as Error).message);
     }
   }
 

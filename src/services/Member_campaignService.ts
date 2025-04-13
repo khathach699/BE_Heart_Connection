@@ -1,6 +1,11 @@
 import path from "path";
 import { IMemberCampaign, IMemberCampaignDocument } from "../types/Member_campaign";
 import MemberCampaign from "../schemas/Member_campaign";
+import mongoose, { model } from "mongoose";
+import { populate } from "dotenv";
+import Campaign from "../schemas/Campaign";
+import ImgCampain from "../schemas/ImgCampain";
+import { selectFields } from "express-validator/lib/field-selection";
 
 export class Member_campaignService {
   async saveParticipant(userInfo: IMemberCampaign): Promise<IMemberCampaignDocument> {
@@ -96,7 +101,6 @@ export class Member_campaignService {
       throw new Error(`Error deleting Participant: ${(error as Error).message}`);
     }
   }
-
   async getUserCampaigns(userId: string, page: number = 1, limit: number = 10) {
     try {
       const options = {
@@ -106,11 +110,23 @@ export class Member_campaignService {
         populate: [
           {
             path: "campaign",
-            populate: {
-              path: "organization",
-              model: "Organization",
-              select: "info"
-            }
+            model : "Campaign",
+            select: "name organization content",
+            populate: [
+              {
+                path: "organization",
+                model: "Organization",
+                select: "info"
+              },
+              {
+                path: "img"
+              }
+            ]
+          },
+          {
+            path: "user",
+            model: "User",
+            select: "fullname",
           },
           {path: "state", select: "name"}
         ]
@@ -126,7 +142,7 @@ export class Member_campaignService {
       }
       
       return {
-        campaigns: result.docs,
+        participated: result.docs,
         total: result.totalDocs,
         totalPages: result.totalPages,
         currentPage: result.page,

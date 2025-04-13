@@ -158,6 +158,22 @@ export class CampaignController {
       next(error);
     }
   }
+  async searchCampaigns(req: Request, res: Response) {
+      try {
+        const { query } = req.query;
+        const page = parseInt(req.query.page as string) || 1;
+        const limit = parseInt(req.query.limit as string) || 10;
+  
+        if (!query) {
+          return CreateErrorResponse(res, 400, "Search query is required");
+        }
+  
+        const result = await campaignService.searchCampaign(query as string, page, limit);
+        return CreateSuccessResponse(res, 200, result);
+      } catch (error) {
+        return CreateErrorResponse(res, 500, (error as Error).message);
+      }
+    }
 }
 
 export default new CampaignController();

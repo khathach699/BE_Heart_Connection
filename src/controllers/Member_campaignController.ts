@@ -78,6 +78,17 @@ export class Member_campaignController {
             return CreateErrorResponse(res, 404, (error as Error).message);
         }
     }
+      async getUserCampaigns(req: Request, res: Response) {
+        try {
+          const userId = req.user._id;
+          const campaignsResult = await Member_CampaignService.getUserCampaigns(
+            userId
+          );
+          return CreateSuccessResponse(res, 200, campaignsResult);
+        } catch (error) {
+          return CreateErrorResponse(res, 500, (error as Error).message);
+        }
+      }
 }
 
 export default new Member_campaignController();

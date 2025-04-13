@@ -6,4 +6,5 @@ router.get("/", Member_CampaignController.getAllActivity as unknown as any);
 router.post("/", check_authentication, Member_CampaignController.participate as unknown as any);
 router.put("/", Member_CampaignController.updateParticipant as unknown as any);
 router.delete("/:id", Member_CampaignController.deleteParticipant as unknown as any);
+router.get("/my-campaign", check_authentication, Member_CampaignController.getUserCampaigns as unknown as any);
 export default router;

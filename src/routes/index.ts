@@ -7,7 +7,9 @@ import organizationRouter from "./organization";
 import stateRouter from "./state";
 import campaignRouter from "./campaigns";
 import postRouter from "./posts";
-import memberCampaignRouter from "./memberCampaign";
+import memberCampaignRouter from "./Member_campaign";
+import donateCampaignRouter from "./Donate_campaign";
+
 
 const router = express.Router();
 
@@ -21,5 +23,6 @@ router.use("/states", stateRouter);
 router.use("/campaigns", campaignRouter);
 router.use("/posts", postRouter);
 router.use("/member-campaign", memberCampaignRouter);
+router.use("/donate-campaign", donateCampaignRouter);
 
 export default router;

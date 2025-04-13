@@ -151,6 +151,37 @@ export class PostService {
             throw new Error(`Error fetching post by orgId: ${(error as Error).message}`);
         }
     }
+    async searchPosts(searchQuery: string, page: number = 1, limit: number = 10) {
+        try {
+            const options = {
+                page,
+                limit,
+                sort: { createdAt: -1 },
+                populate: {
+                    path: 'organization',
+                    select: 'info'
+                }
+            };
+
+            const query = {
+                isdeleted: false,
+                $or: [
+                    { text: { $regex: searchQuery, $options: 'i' } },
+                ]
+            };
+
+            const result = await Post.paginate(query, options);
+
+            return {
+                posts: result.docs,
+                total: result.totalDocs,
+                totalPages: result.totalPages,
+                currentPage: result.page,
+            };
+        } catch (error) {
+            throw new Error(`Error searching posts: ${(error as Error).message}`);
+        }
+    }
         
 }
 

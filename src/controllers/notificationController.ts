@@ -45,6 +45,21 @@ export class NotificationController {
             return CreateErrorResponse(res, 500, (error as Error).message);
         }
     }
+    async createNotification(req: Request, res: Response) {
+        try {
+            const notificationData = {
+                user: req.body.user,
+                content: req.body.content,
+                isRead: false,
+                isDeleted: false
+            };
+            
+            const notification = await notificationService.createNotification(notificationData);
+            return CreateSuccessResponse(res, 201, notification);
+        } catch (error) {
+            return CreateErrorResponse(res, 400, (error as Error).message);
+        }
+    }
 }
 
 export default new NotificationController();

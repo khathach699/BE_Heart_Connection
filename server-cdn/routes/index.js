@@ -87,10 +87,28 @@ router.post("/upload", (req, res, next) => {
   });
 });
 
+//Cam xoa
+router.post("/uploadmultiple", upload.array("images", 5), async (req, res, next) => {
+  console.log("Received files:", req.files);
+  try {
+    const files = req.files;
+    if (!files || files.length === 0) {
+      return next(CreateErrorResponse(res, 400, "Không có file nào được tải lên"));
+    }
+
+    const avatarUrls = files.map(file => `${authURL}${file.filename}`);
+    CreateSuccessResponse(res, 200, {
+      message: "Upload thành công",
+      urls: avatarUrls,
+    });
+  } catch (error) {
+    next(error);
+  }
+});
 router.get("/images/:filename", (req, res, next) => {
   const pathAvatar = path.join(avatarDir, req.params.filename);
   if (!fs.existsSync(pathAvatar)) {
-    return CreateErrorResponse(res, 404, "File không tồn tại");
+    return next(CreateErrorResponse(res, 404, "File không tồn tại"));
   }
   res.sendFile(pathAvatar);
 });

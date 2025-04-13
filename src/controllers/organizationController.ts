@@ -8,25 +8,41 @@ import {
 } from "../utils/responnseHandler";
 
 export class OrganizationController {
+  //Sua them anh
   async requestUpgradeToOrganization(req: Request, res: Response) {
     try {
       const userId = req.user.id;
       if (!userId) {
         return CreateErrorResponse(res, 400, "User ID is required");
       }
+
+      const files = req.files as Express.Multer.File[];
+      if (!files || files.length === 0) {
+        return CreateErrorResponse(res, 400, "Certificate file is required");
+      }
+      if (files.length > 1) {
+        return CreateErrorResponse(res, 400, "Only one certificate file is allowed");
+      }
+      const certificateFile = files[0];
       const orgData: Partial<IOrganization> = {
         info: req.body.info,
-        certificate: req.body.certificate,
         bankName: req.body.bankName,
         bankNumber: req.body.bankNumber,
       };
-      const organization =
-        await organizationService.requestUpgradeToOrganization(userId, orgData);
+      const organization = await organizationService.requestUpgradeToOrganization(
+        userId,
+        orgData,
+        certificateFile
+      );
       return CreateSuccessResponse(res, 201, {
         message: "Organization request created, awaiting approval",
         organization,
       });
     } catch (error) {
+      if (req.files) {
+        const files = req.files as Express.Multer.File[];
+        organizationService.cleanupFile(files);
+      }
       return CreateErrorResponse(res, 404, (error as Error).message);
     }
   }
@@ -71,8 +87,8 @@ export class OrganizationController {
         req.query.isVerified === "true"
           ? true
           : req.query.isVerified === "false"
-          ? false
-          : undefined;
+            ? false
+            : undefined;
 
       const result = await organizationService.getAllOrganizations(
         page,

@@ -27,10 +27,6 @@ const upload = multer({
   limits: { fileSize: 5 * 1024 * 1024 },
 });
 const router = express.Router();
-router.get(
-  "/search",
-  campaignController.searchCampaigns as unknown as any
-);
 router.put(
   "/approve/:id",
   campaignController.approveCampaign as unknown as any

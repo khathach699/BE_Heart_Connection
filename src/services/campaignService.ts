@@ -391,45 +391,6 @@ export class CampaignService {
       if (fs.existsSync(imgPath)) fs.unlinkSync(imgPath);
     });
   }
-  async searchCampaign(searchQuery: string, page: number = 1, limit: number = 10) {
-          try {
-              const options = {
-                  page,
-                  limit,
-                  sort: { createdAt: -1 },
-                  populate: [{
-                      path: 'organization',
-                      select: 'info'
-                  },
-                  {
-                    path: 'state',
-                    select: 'name'
-                  },
-                  {
-                    path: 'img',
-                  }
-                ]
-              };
-  
-              const query = {
-                  isdeleted: false,
-                  $or: [
-                      { name: { $regex: searchQuery, $options: 'i' } },
-                  ]
-              };
-  
-              const result = await Campaign.paginate(query, options);
-  
-              return {
-                  campaigns: result.docs,
-                  total: result.totalDocs,
-                  totalPages: result.totalPages,
-                  currentPage: result.page,
-              };
-          } catch (error) {
-              throw new Error(`Error searching campaigns: ${(error as Error).message}`);
-          }
-      }
 }
 
 export default new CampaignService();

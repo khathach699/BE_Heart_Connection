@@ -3,7 +3,6 @@ import { check_authentication } from "../utils/check_auth";
 import NotificationController from "../controllers/notificationController";
 
 const router = Router();
-router.post("/", NotificationController.createNotification as unknown as any);
 
 router.use(check_authentication); 
 router.get("/", NotificationController.getUserNotifications as unknown as any);

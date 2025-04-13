@@ -27,6 +27,10 @@ const upload = multer({
   limits: { fileSize: 5 * 1024 * 1024 },
 });
 const router = express.Router();
+router.get(
+  "/search",
+  campaignController.searchCampaigns as unknown as any
+);
 router.put(
   "/approve/:id",
   campaignController.approveCampaign as unknown as any
@@ -47,5 +51,5 @@ router.get(
 );
 router.get("/:id", campaignController.getCampaignById as unknown as any);
 router.delete("/:id", campaignController.deleteCampaign as unknown as any);
-
+router.post("/create", check_authentication, check_authorization(PERMISSIONS.ORGANIZATION), upload.array("images", 5), campaignController.createCampaign.bind(campaignController));
 export default router;

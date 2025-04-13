@@ -290,16 +290,12 @@ export class CampaignService {
   }
 
   private readonly avatarDir: string = path.join(__dirname, "../images");
-  private readonly serverCDN: string = "http://localhost:4000/upload";
-
-  async createCampaignWithImages(
-    campaignData: ICampaign,
-    files: Express.Multer.File[]
-  ): Promise<{ campaign: ICampaignDocument; images: string[] }> {
+  private readonly serverCDN: string = "http://localhost:4000/uploadmultiple";
+  //Moi cua tao
+  async createCampaignWithImages(campaignData: ICampaign, files: Express.Multer.File[]): Promise<{ campaign: ICampaignDocument; images: string[] }> {
     if (!files || files.length === 0) {
       throw new Error("Chưa chọn file ảnh");
     }
-    console.log("check files:", files);
     const requiredFields: (keyof ICampaign)[] = [
       "name",
       "organization",
@@ -323,10 +319,6 @@ export class CampaignService {
         const imgPath = path.join(this.avatarDir, file.filename);
         newForm.append("images", fs.createReadStream(imgPath));
       }
-      console.log(
-        "Sending files to CDN with field 'images':",
-        files.map((f) => f.filename)
-      );
 
       let result;
       try {
@@ -344,16 +336,14 @@ export class CampaignService {
         if (fs.existsSync(imgPath)) fs.unlinkSync(imgPath);
       }
 
-      const urls = result.data.urls;
-      if (!urls || urls.length !== files.length) {
-        throw new Error(
-          "Số lượng URL trả về từ CDN không khớp với số file gửi lên"
-        );
+      const urls = result.data?.data?.urls;
+      if (!Array.isArray(urls) || urls.length !== files.length) {
+        throw new Error("Số lượng URL trả về từ CDN không khớp với số file gửi lên");
       }
-
+      
       for (const url of urls) {
         const imgCampaign = new ImgCampaign({
-          campaign: campaign._id,
+          CampID: campaign._id ,
           imgUrl: url,
         });
 
@@ -374,7 +364,7 @@ export class CampaignService {
 
       return {
         campaign,
-        images: imgCampaigns.map((img) => img.imgUrl),
+        images: imgCampaigns.map(img => img.imgUrl),
       };
     } catch (error) {
       if (campaign) {
@@ -384,13 +374,51 @@ export class CampaignService {
       throw error;
     }
   }
-
   cleanupFiles(files: Express.Multer.File[]): void {
     files.forEach((file) => {
       const imgPath = path.join(this.avatarDir, file.filename);
       if (fs.existsSync(imgPath)) fs.unlinkSync(imgPath);
     });
   }
+  async searchCampaign(searchQuery: string, page: number = 1, limit: number = 10) {
+          try {
+              const options = {
+                  page,
+                  limit,
+                  sort: { createdAt: -1 },
+                  populate: [{
+                      path: 'organization',
+                      select: 'info'
+                  },
+                  {
+                    path: 'state',
+                    select: 'name'
+                  },
+                  {
+                    path: 'img',
+                  }
+                ]
+              };
+  
+              const query = {
+                  isdeleted: false,
+                  $or: [
+                      { name: { $regex: searchQuery, $options: 'i' } },
+                  ]
+              };
+  
+              const result = await Campaign.paginate(query, options);
+  
+              return {
+                  campaigns: result.docs,
+                  total: result.totalDocs,
+                  totalPages: result.totalPages,
+                  currentPage: result.page,
+              };
+          } catch (error) {
+              throw new Error(`Error searching campaigns: ${(error as Error).message}`);
+          }
+      }
 }
 
 export default new CampaignService();

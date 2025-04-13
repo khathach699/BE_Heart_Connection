@@ -33,7 +33,7 @@ const upload = multer({
   limits: { fileSize: 5 * 1024 * 1024 },
 });
 
-// Middleware xử lý cả hai loại field: 'avatar' hoặc 'images'
+// @server-cdn - Middleware xử lý cả hai loại field: 'avatar' hoặc 'images'
 const uploadMiddleware = (req, res, next) => {
   // Kiểm tra xem request có chứa field 'avatar' hay không
   const hasAvatarField =
@@ -95,7 +95,7 @@ router.get("/images/:filename", (req, res, next) => {
   res.sendFile(pathAvatar);
 });
 
-// Xóa một file ảnh cụ thể
+// @server-cdn - Xóa một file ảnh cụ thể
 router.delete("/images/:filename", (req, res) => {
   try {
     const filename = req.params.filename;
@@ -115,7 +115,7 @@ router.delete("/images/:filename", (req, res) => {
   }
 });
 
-// API để dọn dẹp ảnh cũ
+// @server-cdn - API để dọn dẹp ảnh cũ
 router.delete("/cleanup", (req, res) => {
   try {
     const { olderThan, excludeFiles } = req.body;

@@ -15,16 +15,17 @@ if (!fs.existsSync(avatarDir)) {
   fs.mkdirSync(avatarDir, { recursive: true });
 }
 
+// URL công khai để truy cập ảnh
 const baseURL = "http://localhost:4000/avatars/";
 
-// Configure storage
+// @server-cdn - Cấu hình storage cho multer
 let storage = multer.diskStorage({
   destination: (req, file, cb) => cb(null, avatarDir),
   filename: (req, file, cb) =>
     cb(null, new Date(Date.now()).getTime() + "-" + file.originalname),
 });
 
-// Configure upload middleware
+// @server-cdn - Cấu hình upload middleware
 let upload = multer({
   storage: storage,
   fileFilter: (req, file, cb) => {
@@ -39,13 +40,14 @@ let upload = multer({
   },
 });
 
-// Handle avatar upload
+// @server-cdn - Handle avatar upload
 router.post("/", upload.single("avatar"), async function (req, res, next) {
   try {
     if (!req.file) {
       return CreateErrorResponse(res, 400, "Không có file được tải lên");
     }
 
+    // Tạo URL hoàn chỉnh cho avatar
     const avatarURL = baseURL + req.file.filename;
 
     return CreateSuccessResponse(res, 200, avatarURL);
@@ -58,7 +60,7 @@ router.post("/", upload.single("avatar"), async function (req, res, next) {
   }
 });
 
-// Serve avatar files
+// @server-cdn - Serve avatar files
 router.get("/avatars/:filename", function (req, res, next) {
   const pathAvatar = path.join(avatarDir, req.params.filename);
   res.sendFile(pathAvatar);

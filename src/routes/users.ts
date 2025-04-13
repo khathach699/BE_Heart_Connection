@@ -36,6 +36,12 @@ router.post(
   UserController.changePassword.bind(UserController) as unknown as any
 );
 
+// Upload avatar route
+router.post(
+  "/upload-avatar/:userId",
+  UserController.uploadAvatar.bind(UserController) as unknown as any
+);
+
 // Get featured users
 router.get(
   "/featured",

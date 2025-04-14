@@ -53,6 +53,7 @@ export class PostController {
       return CreateErrorResponse(res, 500, (error as Error).message);
     }
   }
+
   async getPostById(req: Request, res: Response) {
     try {
       const postId = req.params.id;
@@ -118,7 +119,11 @@ export class PostController {
         return CreateErrorResponse(res, 400, "Search query is required");
       }
 
-      const result = await postService.searchPosts(query as string, page, limit);
+      const result = await postService.searchPosts(
+        query as string,
+        page,
+        limit
+      );
       return CreateSuccessResponse(res, 200, result);
     } catch (error) {
       return CreateErrorResponse(res, 500, (error as Error).message);

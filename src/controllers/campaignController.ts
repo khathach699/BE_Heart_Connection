@@ -137,14 +137,14 @@ export class CampaignController {
         throw new Error("User không được xác thực");
       }
 
-      const organization = req.user.organization;
-      if (!organization) {
-        throw new Error("User không có organization");
-      }
+      // const organization = req.user.organization;
+      // if (!organization) {
+      //   throw new Error("User không có organization");
+      // }
 
       const fullCampaignData: ICampaign = {
         ...campaignData,
-        organization: organization,
+        // organization: organization,
       } as ICampaign;
       const result = await campaignService.createCampaignWithImages(
         fullCampaignData,

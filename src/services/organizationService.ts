@@ -263,12 +263,12 @@ export class OrganizationService {
       }
       const campaignsCount = await Campaign.countDocuments({
         organization: organization._id,
-        IsDeleted: false,
+        isdeleted: false,
       });
 
       const recentCampaigns = await Campaign.find({
         organization: organization._id,
-        IsDeleted: false,
+        isdeleted: false,
       })
         .sort({ Start: -1 })
         .limit(10);

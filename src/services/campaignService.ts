@@ -17,7 +17,7 @@ export class CampaignService {
         isdeleted: false,
       });
       if (!campaign) throw new Error("Campaign not found");
-      if (campaign.isAccepted) throw new Error("Campaign already accepted");
+      if (campaign.isdeleted) throw new Error("Campaign already accepted");
       campaign.isAccepted = true;
       await campaign.save();
       return campaign;
@@ -30,7 +30,7 @@ export class CampaignService {
     try {
       const campaign = await Campaign.findById(campaignId);
       if (!campaign) throw new Error("Campaign not found");
-      if (campaign.isAccepted)
+      if (campaign.isdeleted)
         throw new Error("Campaign already accepted, cannot be rejected");
 
       campaign.isdeleted = true;
@@ -60,16 +60,32 @@ export class CampaignService {
       }
 
       const result = await Campaign.paginate(query, options);
+
+      const campaigns = await Promise.all(
+        result.docs.map(async (campaign) => {
+          const images = await ImgCampain.find({
+            CampID: campaign._id,
+            isdeleted: false,
+          }).select("imgUrl");
+
+          return {
+            ...campaign.toObject(),
+            images: images.map((img) => ({ imgUrl: img.imgUrl })),
+          };
+        })
+      );
+
       return {
-        campaigns: result.docs,
+        campaigns,
         total: result.totalDocs,
         totalPages: result.totalPages,
         currentPage: result.page,
       };
     } catch (error) {
-      throw new Error(`Error fetching campaigns: ${(error as Error).message}`);
+      throw new Error(`Lỗi khi lấy chiến dịch: ${(error as Error).message}`);
     }
   }
+
   async getCampaignById(campaignId: string): Promise<ICampaignDocument> {
     try {
       const campaign = await Campaign.findOne({
@@ -99,6 +115,7 @@ export class CampaignService {
     }
   }
   async getAllCampaignsWasReject(page: number = 1, limit: number = 10) {
+    console.log("Fetching rejected campaigns...");
     try {
       const options = {
         page,
@@ -129,8 +146,8 @@ export class CampaignService {
 
       // Truy vấn dữ liệu chiến dịch từ database
       const campaigns = await Campaign.find({
-        IsDeleted: false,
-        IsAccepted: true,
+        isdeleted: false,
+        isAccepted: true,
       })
         .sort({
           participated: -1,
@@ -150,7 +167,7 @@ export class CampaignService {
           // Lấy hình ảnh liên quan từ ImgCampain
           const image = await ImgCampain.findOne({
             campaign: campaign._id,
-            isDeleted: false,
+            isdeleted: false,
           }).lean();
 
           // Trả về dữ liệu chiến dịch bao gồm hình ảnh và thông tin tổ chức
@@ -183,8 +200,8 @@ export class CampaignService {
       console.log("Fetching featured activities...");
 
       const campaigns = await Campaign.find({
-        IsDeleted: false,
-        IsAccepted: true,
+        isdeleted: false,
+        isAccepted: true,
       })
         .sort({
           participated: -1,
@@ -208,7 +225,7 @@ export class CampaignService {
           // Lấy 1 hình ảnh đầu tiên của campaign
           const image = await ImgCampain.findOne({
             campaign: campaign._id,
-            isDeleted: false,
+            isdeleted: false,
           }).lean();
 
           console.log(`Image for campaign ${campaign._id}:`, image);
@@ -318,8 +335,8 @@ export class CampaignService {
       "name",
       "organization",
       "state",
-      "dayStart",
-      "numberOfDay",
+      "Start",
+      "NumberOfDay",
     ];
     for (const field of requiredFields) {
       if (!campaignData[field]) {
@@ -400,6 +417,7 @@ export class CampaignService {
       if (fs.existsSync(imgPath)) fs.unlinkSync(imgPath);
     });
   }
+
   async searchCampaign(
     searchQuery: string,
     page: number = 1,

@@ -42,11 +42,11 @@ const campaignSchema = new Schema<ICampaignDocument>(
       type: Boolean,
       default: false,
     },
-    dayStart: {
+    Start: {
       type: Date,
       required: true,
     },
-    numberOfDay: {
+    NumberOfDay: {
       type: Number,
       required: true,
     },
@@ -55,7 +55,8 @@ const campaignSchema = new Schema<ICampaignDocument>(
       default: 0,
     },
     img: {
-      type: String, default: null,
+      type: String,
+      default: null,
     },
   },
   {
@@ -64,5 +65,8 @@ const campaignSchema = new Schema<ICampaignDocument>(
 );
 
 campaignSchema.plugin(mongoosePaginate);
-const Campaign = mongoose.model<ICampaignDocument, mongoose.PaginateModel<ICampaignDocument>>("Campaign", campaignSchema);
+const Campaign = mongoose.model<
+  ICampaignDocument,
+  mongoose.PaginateModel<ICampaignDocument>
+>("Campaign", campaignSchema);
 export default Campaign;

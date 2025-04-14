@@ -9,10 +9,12 @@ import path from "path";
 import fs from "fs";
 import axios from "axios";
 import FormData from "form-data";
+import Campaign from "../schemas/Campaign";
 export class OrganizationService {
   //Sua them anh
   private readonly serverCDN: string = "http://localhost:4000/upload";
   private readonly avatarDir: string = path.join(__dirname, "../images");
+
   async requestUpgradeToOrganization(
     userId: string,
     orgData: Partial<IOrganization>,
@@ -21,14 +23,16 @@ export class OrganizationService {
     try {
       const user = await userService.getUserById(userId);
       if (!user) throw new Error("User not found");
-      if (user.organization) throw new Error("User already has an organization");
+      if (user.organization)
+        throw new Error("User already has an organization");
 
       const existingRequest = await Organization.findOne({
         user: userId,
         isdeleted: false,
         isVerified: false,
       });
-      if (existingRequest) throw new Error("User already has a request for organization upgrade");
+      if (existingRequest)
+        throw new Error("User already has a request for organization upgrade");
 
       const imgPath = path.join(this.avatarDir, certificateFile.filename);
       const newForm = new FormData();
@@ -41,7 +45,9 @@ export class OrganizationService {
         });
       } catch (axiosError: any) {
         if (fs.existsSync(imgPath)) fs.unlinkSync(imgPath);
-        throw new Error(`Không thể upload certificate lên CDN: ${axiosError.message}`);
+        throw new Error(
+          `Không thể upload certificate lên CDN: ${axiosError.message}`
+        );
       }
       if (fs.existsSync(imgPath)) fs.unlinkSync(imgPath);
 
@@ -66,6 +72,7 @@ export class OrganizationService {
       );
     }
   }
+
   async approveOrganization(orgId: string): Promise<IOrganizationDocument> {
     try {
       const organization = await Organization.findOne({
@@ -176,20 +183,26 @@ export class OrganizationService {
   }
   async deleteOrganization(orgId: string) {
     try {
-      const organization = await Organization.findById({_id:orgId, isVerified: false, isdeleted: true});
+      const organization = await Organization.findById({
+        _id: orgId,
+        isVerified: false,
+        isdeleted: true,
+      });
       if (!organization) {
         throw new Error("Organization not found");
       }
       if (organization.isVerified) {
         throw new Error("Cannot delete a verified organization");
       }
-      
+
       if (organization.certificate) {
         const filename = organization.certificate.split("/").pop();
         try {
           await axios.delete(`http://localhost:4000/images/${filename}`);
-        } catch (cdnError:any) {
-          console.error(`Failed to delete certificate from CDN: ${cdnError.message}`);
+        } catch (cdnError: any) {
+          console.error(
+            `Failed to delete certificate from CDN: ${cdnError.message}`
+          );
         }
       }
       const result = await Organization.deleteOne({
@@ -235,6 +248,43 @@ export class OrganizationService {
       const imgPath = path.join(this.avatarDir, file.filename);
       if (fs.existsSync(imgPath)) fs.unlinkSync(imgPath);
     });
+  }
+
+  // them moi thach
+  // Lấy thông tin tổ chức (info) dựa vào userId
+  async getOrganizationInfoByUserId(userId: string) {
+    try {
+      const organization = await Organization.findOne({
+        user: new mongoose.Types.ObjectId(userId),
+        isdeleted: false,
+      });
+      if (!organization) {
+        throw new Error("No organization found for this user");
+      }
+      const campaignsCount = await Campaign.countDocuments({
+        organization: organization._id,
+        IsDeleted: false,
+      });
+
+      const recentCampaigns = await Campaign.find({
+        organization: organization._id,
+        IsDeleted: false,
+      })
+        .sort({ Start: -1 })
+        .limit(10);
+
+      return {
+        info: organization.info,
+        totalCampaigns: campaignsCount,
+        recentCampaigns: recentCampaigns,
+      };
+    } catch (error) {
+      throw new Error(
+        `Error fetching organization info by user ID: ${
+          (error as Error).message
+        }`
+      );
+    }
   }
 }
 

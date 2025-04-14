@@ -17,7 +17,6 @@ import userSocialRouter from "./User_social";
 import socialTypeRouter from "./social_type";
 import campTagRouter from "./Camp_tag";
 
-
 const router = express.Router();
 
 // Register all routes

@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import organizationService from "../services/organizationService";
 import { IOrganization } from "../types/Organization";
-import mongoose from "mongoose";
+
 import {
   CreateSuccessResponse,
   CreateErrorResponse,
@@ -11,7 +11,7 @@ export class OrganizationController {
   //Sua them anh
   async requestUpgradeToOrganization(req: Request, res: Response) {
     try {
-      const userId = req.user.id;
+      const userId = req.params.id;
       if (!userId) {
         return CreateErrorResponse(res, 400, "User ID is required");
       }
@@ -21,7 +21,11 @@ export class OrganizationController {
         return CreateErrorResponse(res, 400, "Certificate file is required");
       }
       if (files.length > 1) {
-        return CreateErrorResponse(res, 400, "Only one certificate file is allowed");
+        return CreateErrorResponse(
+          res,
+          400,
+          "Only one certificate file is allowed"
+        );
       }
       const certificateFile = files[0];
       const orgData: Partial<IOrganization> = {
@@ -29,11 +33,12 @@ export class OrganizationController {
         bankName: req.body.bankName,
         bankNumber: req.body.bankNumber,
       };
-      const organization = await organizationService.requestUpgradeToOrganization(
-        userId,
-        orgData,
-        certificateFile
-      );
+      const organization =
+        await organizationService.requestUpgradeToOrganization(
+          userId,
+          orgData,
+          certificateFile
+        );
       return CreateSuccessResponse(res, 201, {
         message: "Organization request created, awaiting approval",
         organization,
@@ -87,8 +92,8 @@ export class OrganizationController {
         req.query.isVerified === "true"
           ? true
           : req.query.isVerified === "false"
-            ? false
-            : undefined;
+          ? false
+          : undefined;
 
       const result = await organizationService.getAllOrganizations(
         page,
@@ -141,6 +146,22 @@ export class OrganizationController {
       return CreateSuccessResponse(res, 200, result);
     } catch (error) {
       return CreateErrorResponse(res, 500, (error as Error).message);
+    }
+  }
+
+  // ham lay ra name organization by userId khathach
+  async getOrganizationByUserId(req: Request, res: Response) {
+    try {
+      const userId = req.params.id;
+      if (!userId) {
+        return CreateErrorResponse(res, 400, "User ID is required");
+      }
+
+      const organization =
+        await organizationService.getOrganizationInfoByUserId(userId);
+      return CreateSuccessResponse(res, 200, organization);
+    } catch (error) {
+      return CreateErrorResponse(res, 404, (error as Error).message);
     }
   }
 }

@@ -39,7 +39,7 @@ export class CampaignController {
 
   async getFeaturedCampaigns(req: Request, res: Response) {
     try {
-      const limit = parseInt(req.query.limit as string) || 5;
+      const limit = parseInt(req.query.limit as string) || 7;
       const featuredCampaigns = await campaignService.getFeaturedCampaigns(
         limit
       );
@@ -48,6 +48,7 @@ export class CampaignController {
       CreateErrorResponse(res, 500, (error as Error).message);
     }
   }
+
   async getFeaturedActivities(req: Request, res: Response) {
     try {
       const limit = parseInt(req.query.limit as string) || 3;
@@ -159,17 +160,21 @@ export class CampaignController {
     }
   }
   async searchCampaigns(req: Request, res: Response) {
-      try {
-        const search = req.query.search;
-        const page = parseInt(req.query.page as string) || 1;
-        const limit = parseInt(req.query.limit as string) || 10;
-  
-        const result = await campaignService.searchCampaign(search as string, page, limit);
-        return CreateSuccessResponse(res, 200, result);
-      } catch (error) {
-        return CreateErrorResponse(res, 500, (error as Error).message);
-      }
+    try {
+      const search = req.query.search;
+      const page = parseInt(req.query.page as string) || 1;
+      const limit = parseInt(req.query.limit as string) || 10;
+
+      const result = await campaignService.searchCampaign(
+        search as string,
+        page,
+        limit
+      );
+      return CreateSuccessResponse(res, 200, result);
+    } catch (error) {
+      return CreateErrorResponse(res, 500, (error as Error).message);
     }
+  }
 }
 
 export default new CampaignController();

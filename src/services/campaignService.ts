@@ -7,7 +7,8 @@ import fs from "fs";
 import path from "path";
 import ImgCampaign from "../schemas/ImgCampain";
 import FormData from "form-data";
-import removeAccents from 'remove-accents';
+import removeAccents from "remove-accents";
+import Organization from "../schemas/Organization";
 export class CampaignService {
   async approveCampaign(campaignID: string): Promise<ICampaignDocument> {
     try {
@@ -120,61 +121,16 @@ export class CampaignService {
       );
     }
   }
-  async getFeaturedCampaigns(limit: number = 5) {
+
+  // thach sua
+  async getFeaturedCampaigns(limit: number = 7) {
     try {
+      console.log("Fetching campaigns...");
+
+      // Truy vấn dữ liệu chiến dịch từ database
       const campaigns = await Campaign.find({
-        isdeleted: false,
-        isAccepted: true,
-      })
-        .sort({
-          participated: -1,
-          donate: -1,
-          dayStart: -1,
-        })
-        .limit(limit)
-        .populate("organization")
-        .setOptions({ strictPopulate: false });
-
-      const campaignsWithImages = await Promise.all(
-        campaigns.map(async (campaign) => {
-          const images = await ImgCampain.find({
-            CampID: campaign._id,
-            isdeleted: false,
-          });
-
-          return {
-            ...campaign.toObject(),
-            images: images,
-            organizationInfo:
-              campaign.organization && typeof campaign.organization === "object"
-                ? {
-                  name:
-                    (campaign.organization as any).Inform ||
-                    "Tổ chức không xác định",
-                  logo:
-                    (campaign.organization as any).logo ||
-                    "/src/assets/logos/avt.png",
-                }
-                : {
-                  name: "Tổ chức không xác định",
-                  logo: "/src/assets/logos/avt.png",
-                },
-          };
-        })
-      );
-
-      return campaignsWithImages;
-    } catch (error) {
-      throw new Error(
-        `Error fetching featured campaigns: ${(error as Error).message}`
-      );
-    }
-  }
-  async getFeaturedActivities(limit: number = 3) {
-    try {
-      const campaigns = await Campaign.find({
-        isdeleted: false,
-        isAccepted: true,
+        IsDeleted: false,
+        IsAccepted: true,
       })
         .sort({
           participated: -1,
@@ -184,51 +140,110 @@ export class CampaignService {
         .limit(limit)
         .populate({
           path: "organization",
-          select: "Inform logo",
+          select: "info logo", // Chỉ lấy thông tin "info" và "logo"
+          match: { isdeleted: false },
         })
-        .setOptions({ strictPopulate: false });
+        .lean(); // Trả về object JS thông thường
+
+      const campaignsWithImage = await Promise.all(
+        campaigns.map(async (campaign) => {
+          // Lấy hình ảnh liên quan từ ImgCampain
+          const image = await ImgCampain.findOne({
+            campaign: campaign._id,
+            isDeleted: false,
+          }).lean();
+
+          // Trả về dữ liệu chiến dịch bao gồm hình ảnh và thông tin tổ chức
+          return {
+            _id: campaign._id,
+            name: campaign.name,
+            participated: campaign.participated,
+            img: image?.imgUrl || null, // Nếu không có hình ảnh thì trả null
+          };
+        })
+      );
+      return campaignsWithImage;
+    } catch (error) {
+      console.error(
+        "Error fetching featured campaigns:",
+        (error as Error).message
+      );
+      return {
+        success: false,
+        data: [],
+        message: `Error fetching featured campaigns: ${
+          (error as Error).message
+        }`,
+      };
+    }
+  }
+
+  async getFeaturedActivities(limit: number = 3) {
+    try {
+      console.log("Fetching featured activities...");
+
+      const campaigns = await Campaign.find({
+        IsDeleted: false,
+        IsAccepted: true,
+      })
+        .sort({
+          participated: -1,
+          donate: -1,
+          dayStart: -1,
+        })
+        .limit(limit)
+        .populate({
+          path: "organization",
+          select: "info isdeleted",
+          match: { isdeleted: false },
+        })
+        .lean();
+
+      console.log("Campaigns fetched with populated organization:", campaigns);
 
       const activitiesWithImages = await Promise.all(
         campaigns.map(async (campaign) => {
-          const images = await ImgCampain.find({
-            CampID: campaign._id,
-            isdeleted: false,
-          });
+          console.log(`Processing campaign: ${campaign._id}`);
 
-          const campaignObj = campaign.toObject();
+          // Lấy 1 hình ảnh đầu tiên của campaign
+          const image = await ImgCampain.findOne({
+            campaign: campaign._id,
+            isDeleted: false,
+          }).lean();
 
-          let organizationInfo = {
-            name: "Tổ chức không xác định",
-            logo: "/src/assets/logos/avt.png",
-          };
-
-          if (
-            campaignObj.organization &&
-            typeof campaignObj.organization === "object"
-          ) {
-            organizationInfo = {
-              name:
-                (campaignObj.organization as any).Inform ||
-                "Tổ chức không xác định",
-              logo:
-                (campaignObj.organization as any).logo ||
-                "/src/assets/logos/avt.png",
-            };
-          }
+          console.log(`Image for campaign ${campaign._id}:`, image);
 
           return {
-            ...campaignObj,
-            images: images,
-            organizationInfo,
+            _id: campaign._id,
+            name: campaign.name,
+            text: campaign.content,
+
+            organization: {
+              name:
+                (campaign.organization as any)?.info ||
+                "Tổ chức không xác định",
+            },
+
+            img: image?.imgUrl || null,
           };
         })
       );
 
+      console.log("Final activities with images:", activitiesWithImages);
+
       return activitiesWithImages;
     } catch (error) {
-      throw new Error(
-        `Error fetching featured activities: ${(error as Error).message}`
+      console.error(
+        "Error fetching featured activities:",
+        (error as Error).message
       );
+      return {
+        success: false,
+        data: [],
+        message: `Error fetching featured activities: ${
+          (error as Error).message
+        }`,
+      };
     }
   }
 
@@ -292,7 +307,10 @@ export class CampaignService {
   private readonly avatarDir: string = path.join(__dirname, "../images");
   private readonly serverCDN: string = "http://localhost:4000/uploadmultiple";
   //Moi cua tao
-  async createCampaignWithImages(campaignData: ICampaign, files: Express.Multer.File[]): Promise<{ campaign: ICampaignDocument; images: string[] }> {
+  async createCampaignWithImages(
+    campaignData: ICampaign,
+    files: Express.Multer.File[]
+  ): Promise<{ campaign: ICampaignDocument; images: string[] }> {
     if (!files || files.length === 0) {
       throw new Error("Chưa chọn file ảnh");
     }
@@ -338,7 +356,9 @@ export class CampaignService {
 
       const urls = result.data?.data?.urls;
       if (!Array.isArray(urls) || urls.length !== files.length) {
-        throw new Error("Số lượng URL trả về từ CDN không khớp với số file gửi lên");
+        throw new Error(
+          "Số lượng URL trả về từ CDN không khớp với số file gửi lên"
+        );
       }
 
       for (const url of urls) {
@@ -364,7 +384,7 @@ export class CampaignService {
 
       return {
         campaign,
-        images: imgCampaigns.map(img => img.imgUrl),
+        images: imgCampaigns.map((img) => img.imgUrl),
       };
     } catch (error) {
       if (campaign) {
@@ -380,31 +400,38 @@ export class CampaignService {
       if (fs.existsSync(imgPath)) fs.unlinkSync(imgPath);
     });
   }
-  async searchCampaign(searchQuery: string, page: number = 1, limit: number = 10) {
+  async searchCampaign(
+    searchQuery: string,
+    page: number = 1,
+    limit: number = 10
+  ) {
     try {
       const allCampaigns = await Campaign.find({ isdeleted: false })
-        .populate('organization', 'info')
-        .populate('state', 'name')
-        .populate('img')
+        .populate("organization", "info")
+        .populate("state", "name")
+        .populate("img")
         .sort({ createdAt: -1 });
 
       let filteredCampaigns = allCampaigns;
 
-      if (searchQuery && searchQuery.trim() !== '') {
+      if (searchQuery && searchQuery.trim() !== "") {
         const normalizedSearch = removeAccents(searchQuery.toLowerCase());
         const tokens = normalizedSearch.split(/\s+/).filter(Boolean);
 
         filteredCampaigns = allCampaigns.filter((camp) => {
           const nameNormalized = removeAccents(camp.name.toLowerCase());
 
-          return tokens.every(token => nameNormalized.includes(token));
+          return tokens.every((token) => nameNormalized.includes(token));
         });
       }
 
       const total = filteredCampaigns.length;
       const totalPages = Math.ceil(total / limit);
       const offset = (page - 1) * limit;
-      const paginatedCampaigns = filteredCampaigns.slice(offset, offset + limit);
+      const paginatedCampaigns = filteredCampaigns.slice(
+        offset,
+        offset + limit
+      );
 
       return {
         campaigns: paginatedCampaigns,
@@ -416,7 +443,6 @@ export class CampaignService {
       throw new Error(`Error searching campaigns: ${(error as Error).message}`);
     }
   }
-
 }
 
 export default new CampaignService();

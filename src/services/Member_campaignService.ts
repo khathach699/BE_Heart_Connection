@@ -1,5 +1,8 @@
 import path from "path";
-import { IMemberCampaign, IMemberCampaignDocument } from "../types/Member_campaign";
+import {
+  IMemberCampaign,
+  IMemberCampaignDocument,
+} from "../types/Member_campaign";
 import MemberCampaign from "../schemas/Member_campaign";
 import mongoose, { model } from "mongoose";
 import { populate } from "dotenv";
@@ -8,12 +11,14 @@ import ImgCampain from "../schemas/ImgCampain";
 import { selectFields } from "express-validator/lib/field-selection";
 
 export class Member_campaignService {
-  async saveParticipant(userInfo: IMemberCampaign): Promise<IMemberCampaignDocument> {
+  async saveParticipant(
+    userInfo: IMemberCampaign
+  ): Promise<IMemberCampaignDocument> {
     try {
       const existingParticipant = await MemberCampaign.findOne({
         user: userInfo.user,
         campaign: userInfo.campaign,
-        isdeleted: false
+        isdeleted: false,
       });
 
       if (existingParticipant) {
@@ -23,10 +28,12 @@ export class Member_campaignService {
       const newUser = new MemberCampaign(userInfo);
       return (await newUser.save()) as unknown as IMemberCampaignDocument;
     } catch (error) {
-      throw new Error(`Error creating Participant: ${(error as Error).message}`);
+      throw new Error(
+        `Error creating Participant: ${(error as Error).message}`
+      );
     }
   }
-  
+
   async getAllActivity(page: number = 1, limit: number = 10) {
     try {
       const options = {
@@ -34,17 +41,17 @@ export class Member_campaignService {
         limit,
         sort: { createdAt: -1 },
         populate: [
-          {path: "user"},
+          { path: "user" },
           {
             path: "campaign",
             populate: {
               path: "organization",
-              model: "Organization",     
-              select: "info"       
-            }
+              model: "Organization",
+              select: "info",
+            },
           },
-          {path: "state", select : "name"},
-        ]
+          { path: "state", select: "name" },
+        ],
       };
       const result = await (MemberCampaign as any).paginate(
         { isdeleted: false },
@@ -60,16 +67,26 @@ export class Member_campaignService {
         currentPage: result.page,
       };
     } catch (error) {
-      throw new Error(`Error fetching Participant: ${(error as Error).message}`);
+      throw new Error(
+        `Error fetching Participant: ${(error as Error).message}`
+      );
     }
   }
   async getParticipantById(id: string): Promise<IMemberCampaignDocument> {
     try {
-      const userInfo = await MemberCampaign.findOne({ _id: id, isdeleted: false }).populate("user").populate("campaign").populate("state");
+      const userInfo = await MemberCampaign.findOne({
+        _id: id,
+        isdeleted: false,
+      })
+        .populate("user")
+        .populate("campaign")
+        .populate("state");
       if (!userInfo) throw new Error("Participant not found");
       return userInfo as unknown as IMemberCampaignDocument;
     } catch (error) {
-      throw new Error(`Error fetching Participant: ${(error as Error).message}`);
+      throw new Error(
+        `Error fetching Participant: ${(error as Error).message}`
+      );
     }
   }
   async updateParticipantInfo(
@@ -85,7 +102,9 @@ export class Member_campaignService {
       if (!user) throw new Error("Participant not found");
       return user as unknown as IMemberCampaignDocument;
     } catch (error) {
-      throw new Error(`Error updating Participant: ${(error as Error).message}`);
+      throw new Error(
+        `Error updating Participant: ${(error as Error).message}`
+      );
     }
   }
   async deleteParticipant(id: string): Promise<IMemberCampaignDocument> {
@@ -98,11 +117,15 @@ export class Member_campaignService {
       if (!user) throw new Error("Participant not found");
       return user as unknown as IMemberCampaignDocument;
     } catch (error) {
-      throw new Error(`Error deleting Participant: ${(error as Error).message}`);
+      throw new Error(
+        `Error deleting Participant: ${(error as Error).message}`
+      );
     }
   }
   async getUserCampaigns(userId: string, page: number = 1, limit: number = 10) {
     try {
+      console.log("🔍 Fetching user campaigns for userId:", userId);
+
       const options = {
         page,
         limit,
@@ -110,37 +133,51 @@ export class Member_campaignService {
         populate: [
           {
             path: "campaign",
-            model : "Campaign",
-            select: "name organization content",
+            model: "Campaign",
+            select: "name Text organization",
             populate: [
               {
                 path: "organization",
                 model: "Organization",
-                select: "info"
+                select: "info",
+                match: { isdeleted: false },
               },
               {
-                path: "img"
-              }
-            ]
+                path: "img",
+                model: "ImgCampain",
+                select: "imgUrl",
+              },
+            ],
           },
           {
             path: "user",
             model: "User",
             select: "fullname",
           },
-          {path: "state", select: "name"}
-        ]
+          {
+            path: "state",
+            model: "State",
+            select: "name",
+          },
+        ],
       };
-      
+
       const result = await (MemberCampaign as any).paginate(
         { user: userId, isdeleted: false },
         options
       );
-      
+
+      console.log("📦 Paginated campaigns result:", {
+        totalDocs: result.totalDocs,
+        totalPages: result.totalPages,
+        currentPage: result.page,
+      });
+
       if (page > result.totalPages && result.totalDocs > 0) {
+        console.warn("⚠️ Page requested exceeds total pages.");
         throw new Error("Page not found");
       }
-      
+
       return {
         participated: result.docs,
         total: result.totalDocs,
@@ -148,7 +185,15 @@ export class Member_campaignService {
         currentPage: result.page,
       };
     } catch (error) {
-      throw new Error(`Error fetching user campaigns: ${(error as Error).message}`);
+      console.error(
+        "❌ Error fetching user campaigns:",
+        (error as Error).message
+      );
+      return {
+        success: false,
+        message: (error as Error).message,
+        data: [],
+      };
     }
   }
 }

@@ -12,7 +12,7 @@ import {
 export class Member_campaignController {
   async participate(req: Request, res: Response) {
     try {
-      const userId = req.user._id;
+      const userId = req.params.userId;
       const uncompletedState = await StateSchema.findOne({
         name: "Uncompleted",
       });

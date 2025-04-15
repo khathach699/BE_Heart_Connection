@@ -11,7 +11,7 @@ import {
 export class Donate_campaignController {
   async createDonate(req: Request, res: Response) {
     try {
-      const userId = req.user._id;
+      const userId = req.params.userId;
       const donateData = {
         ...req.body,
         user: userId,

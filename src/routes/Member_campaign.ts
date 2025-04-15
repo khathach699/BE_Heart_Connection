@@ -4,7 +4,7 @@ import Member_CampaignController from "../controllers/Member_campaignController"
 const router = Router();
 router.get("/", Member_CampaignController.getAllActivity as unknown as any);
 router.post(
-  "/",
+  "/:userId",
   check_authentication,
   Member_CampaignController.participate as unknown as any
 );

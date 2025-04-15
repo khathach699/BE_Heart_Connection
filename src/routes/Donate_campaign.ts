@@ -9,7 +9,7 @@ router.post(
   Donate_CampaignController.getDonateById as unknown as any
 );
 router.post(
-  "/",
+  "/:userId",
   check_authentication,
   Donate_CampaignController.createDonate as unknown as any
 );

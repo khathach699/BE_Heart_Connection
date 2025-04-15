@@ -272,12 +272,13 @@ export class CampaignService {
       const campaign = await Campaign.findById(campaignId);
       if (!campaign) throw new Error("Campaign not found");
 
-      if (campaign.amountOfMoney >= campaign.donate) {
+      if (campaign.donate > 0 && campaign.amountOfMoney >= campaign.donate) {
         throw new Error("Campaign has reached its donation goal");
       }
-      const currentDonate = Number(campaign.amountOfMoney) || 0;
+
+      const currentDonate = Number(campaign.numberOfPeople) || 0;
       const donateAmount = Number(amount) || 0;
-      campaign.amountOfMoney = currentDonate + donateAmount;
+      campaign.numberOfPeople = currentDonate + donateAmount;
 
       await campaign.save();
 
@@ -296,8 +297,8 @@ export class CampaignService {
       const campaign = await Campaign.findById(campaignId);
       if (!campaign) throw new Error("Campaign not found");
 
-      const currentParticipant = Number(campaign.numberOfPeople) || 0;
-      campaign.numberOfPeople = currentParticipant + 1;
+      const currentParticipant = Number(campaign.participated) || 0;
+      campaign.participated = currentParticipant + 1;
 
       await campaign.save();
 
